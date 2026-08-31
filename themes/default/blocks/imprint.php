@@ -21,6 +21,9 @@ if ($companyName === '') {
 }
 $legalForm = trim((string)($p['legal_form'] ?? ''));
 $representative = trim((string)($p['representative'] ?? ''));
+if ($representative === '') {
+    $representative = trim((string)($settings['legal_owner'] ?? ''));
+}
 $address = trim((string)($p['address'] ?? ''));
 if ($address === '') {
     $address = trim((string)($settings['contact_address'] ?? ''));
@@ -43,12 +46,20 @@ if ($website === '') {
     $website = trim((string)($settings['domain'] ?? ''));
 }
 $registerEntry = trim((string)($p['register_entry'] ?? ''));
+if ($registerEntry === '') {
+    $registerEntry = trim((string)($settings['legal_register_entry'] ?? ''));
+}
+$registerCourt = trim((string)($settings['legal_register_court'] ?? ''));
+$registerNumber = trim((string)($settings['legal_register_number'] ?? ''));
 $vatId = trim((string)($p['vat_id'] ?? ''));
+if ($vatId === '') {
+    $vatId = trim((string)($settings['legal_vat_id'] ?? ''));
+}
 $responsiblePerson = trim((string)($p['responsible_person'] ?? ''));
 $disputeText = trim((string)($p['dispute_text'] ?? ''));
 $additionalInfo = trim((string)($p['additional_info'] ?? ''));
 
-if ($companyName === '' && $address === '' && $email === '' && $phone === '' && $registerEntry === '' && $vatId === '' && $responsiblePerson === '' && $disputeText === '' && $additionalInfo === '') {
+if ($companyName === '' && $address === '' && $email === '' && $phone === '' && $registerEntry === '' && $registerCourt === '' && $registerNumber === '' && $vatId === '' && $responsiblePerson === '' && $disputeText === '' && $additionalInfo === '') {
     return;
 }
 
@@ -111,8 +122,12 @@ if ($website !== '') {
       </p>
     <?php endif; ?>
 
-    <?php if ($registerEntry !== ''): ?>
-      <p>Registereintrag: <?= htmlspecialchars($registerEntry, ENT_QUOTES, 'UTF-8') ?></p>
+    <?php if ($registerEntry !== '' || $registerCourt !== '' || $registerNumber !== ''): ?>
+      <p>
+        <?php if ($registerEntry !== ''): ?>Eintragung im <?= htmlspecialchars($registerEntry, ENT_QUOTES, 'UTF-8') ?><br><?php endif; ?>
+        <?php if ($registerCourt !== ''): ?>Registergericht: <?= htmlspecialchars($registerCourt, ENT_QUOTES, 'UTF-8') ?><br><?php endif; ?>
+        <?php if ($registerNumber !== ''): ?>Registernummer: <?= htmlspecialchars($registerNumber, ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
+      </p>
     <?php endif; ?>
 
     <?php if ($vatId !== ''): ?>

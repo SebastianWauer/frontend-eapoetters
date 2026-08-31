@@ -261,6 +261,12 @@ $contactPhone = trim((string)($sidebarSettings['contact_phone'] ?? ''));
 $contactEmail = trim((string)($sidebarSettings['contact_email'] ?? ''));
 $contactPhoneHref = preg_replace('/[^0-9+]/', '', $contactPhone) ?: '';
 $hasContactDetails = $contactAddress !== '' || $contactPostalCity !== '' || $contactCountry !== '' || $contactPhone !== '' || $contactEmail !== '';
+$openingStatus = trim((string)($sidebarSettings['opening_status'] ?? 'hidden'));
+$openingLabel = match ($openingStatus) {
+    'open' => 'Aktuell geöffnet',
+    'closed' => 'Aktuell geschlossen',
+    default => '',
+};
 $isContactPage = $currentPath === '/kontakt' || trim(strtolower((string)($slug ?? '')), '/') === 'kontakt';
 $highlightFirstService = $currentPath === '/' || in_array(trim(strtolower((string)($slug ?? '')), '/'), ['home', 'start'], true);
 ?>
@@ -315,10 +321,12 @@ $highlightFirstService = $currentPath === '/' || in_array(trim(strtolower((strin
             </address>
             <?php endif; ?>
 
-            <p class="site-sidebar__opening" data-opening-status>
-                <span class="site-sidebar__opening-dot" aria-hidden="true"></span>
-                <span data-opening-status-text>Öffnungszeiten</span>
+            <?php if ($openingLabel !== ''): ?>
+            <p class="site-sidebar__opening">
+                <span class="site-sidebar__opening-dot<?= $openingStatus === 'open' ? ' is-open' : '' ?>" aria-hidden="true"></span>
+                <span><?= e($openingLabel) ?></span>
             </p>
+            <?php endif; ?>
 
             <a class="site-sidebar__contact-badge<?= $isContactPage ? ' is-active' : '' ?>" href="/kontakt"<?= $isContactPage ? ' aria-current="page"' : '' ?>>
                 Angebot anfragen
@@ -351,20 +359,5 @@ $highlightFirstService = $currentPath === '/' || in_array(trim(strtolower((strin
         }
     });
 
-    const updateOpeningStatus = () => {
-        const now = new Date();
-        const weekday = now.getDay();
-        const minutes = now.getHours() * 60 + now.getMinutes();
-        const isOpen = (weekday >= 1 && weekday <= 4 && minutes >= 480 && minutes < 960)
-            || (weekday === 5 && minutes >= 480 && minutes < 780);
-        sidebar.querySelectorAll('[data-opening-status-text]').forEach((element) => {
-            element.textContent = isOpen ? 'Jetzt geöffnet' : 'Aktuell geschlossen';
-        });
-        sidebar.querySelectorAll('.site-sidebar__opening-dot').forEach((element) => {
-            element.classList.toggle('is-open', isOpen);
-        });
-    };
-    updateOpeningStatus();
-    window.setInterval(updateOpeningStatus, 60000);
 })();
 </script>

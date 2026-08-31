@@ -178,6 +178,15 @@ header nav {
   margin: 0;
 }
 
+.site-footer__credit a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-footer__credit a:hover {
+  color: #fff;
+}
+
 .site-footer__nav {
   display: flex;
   flex-wrap: wrap;
@@ -2804,6 +2813,19 @@ body.has-sidebar > footer {
 
   .site-footer__owner {
     display: none;
+  }
+
+  .site-footer__credit {
+    display: block;
+    margin-top: 0.2rem;
+  }
+
+  .site-footer__credit-separator {
+    display: none;
+  }
+
+  .site-footer__credit a:hover {
+    color: var(--sidebar-contact);
   }
 
   .site-footer__nav {
