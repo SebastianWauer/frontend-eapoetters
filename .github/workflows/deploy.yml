@@ -1,0 +1,271 @@
+name: Deploy to IONOS
+
+# Rollt ausschliesslich dieses Kundenfrontend aus. Die Verwaltung liefert das
+# Ziel; frontend.json, Kunden-Key, Repository und Ref muessen uebereinstimmen.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      kunde:
+        description: "Optionale Kunden-ID; leer = anhand des Repositories ermitteln"
+        required: false
+        type: string
+concurrency:
+  group: deploy-frontend-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Frontend und Ziel eindeutig abgleichen
+        env:
+          VERWALTUNG_URL: ${{ secrets.VERWALTUNG_URL }}
+          CI_TOKEN: ${{ secrets.VERWALTUNG_CI_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          jq -e '.id | type == "string" and length > 0' frontend.json >/dev/null
+          FRONTEND_KEY=$(jq -r '.id' frontend.json)
+
+          KUNDE_ID="${{ inputs.kunde }}"
+          if [ -z "$KUNDE_ID" ]; then
+            STATUS=$(curl -sS --max-time 30 -o /tmp/instanzen.json -w '%{http_code}' \
+              -H "X-Ci-Token: $CI_TOKEN" \
+              "${VERWALTUNG_URL%/}/api/ci/instances")
+            if [ "$STATUS" != "200" ]; then
+              echo "::error::Instanzliste konnte nicht geladen werden, HTTP $STATUS."
+              exit 1
+            fi
+
+            TREFFER=()
+            while read -r CANDIDATE; do
+              [ -n "$CANDIDATE" ] || continue
+              CANDIDATE_STATUS=$(curl -sS --max-time 30 -o "/tmp/kandidat-$CANDIDATE.json" -w '%{http_code}' \
+                -H "X-Ci-Token: $CI_TOKEN" \
+                "${VERWALTUNG_URL%/}/api/ci/deploy-target?customer=$CANDIDATE")
+              if [ "$CANDIDATE_STATUS" = "200" ] \
+                && [ "$(jq -r '.frontend.repository // ""' "/tmp/kandidat-$CANDIDATE.json")" = "$GITHUB_REPOSITORY" ]; then
+                TREFFER+=("$CANDIDATE")
+              fi
+            done < <(jq -r '.instances[].customer' /tmp/instanzen.json)
+
+            if [ "${#TREFFER[@]}" -ne 1 ]; then
+              echo "::error::Repository-Zuordnung ist nicht eindeutig; gefunden: ${#TREFFER[@]}."
+              exit 1
+            fi
+            KUNDE_ID="${TREFFER[0]}"
+          fi
+
+          echo "KUNDE_ID=$KUNDE_ID" >> "$GITHUB_ENV"
+          STATUS=$(curl -sS --max-time 30 -o /tmp/ziel.json -w '%{http_code}' \
+            -H "X-Ci-Token: $CI_TOKEN" \
+            "${VERWALTUNG_URL%/}/api/ci/deploy-target?customer=$KUNDE_ID")
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Verwaltung antwortete mit HTTP $STATUS"
+            cat /tmp/ziel.json || true
+            exit 1
+          fi
+
+          for pfad in .ssh.password .tokens.health .tokens.api; do
+            wert=$(jq -r "$pfad // empty" /tmp/ziel.json)
+            [ -n "$wert" ] && echo "::add-mask::$wert"
+          done
+
+          EXPECTED_KEY=$(jq -r '.frontend.key // ""' /tmp/ziel.json)
+          EXPECTED_REPO=$(jq -r '.frontend.repository // ""' /tmp/ziel.json)
+          EXPECTED_REF=$(jq -r '.frontend.ref // "main"' /tmp/ziel.json)
+
+          if [ "$FRONTEND_KEY" != "$EXPECTED_KEY" ]; then
+            echo "::error::Frontend-Key '$FRONTEND_KEY' gehoert nicht zum Kunden-Key '$EXPECTED_KEY'."
+            exit 1
+          fi
+          if [ -z "$EXPECTED_REPO" ] || [ "$GITHUB_REPOSITORY" != "$EXPECTED_REPO" ]; then
+            echo "::error::Repository '$GITHUB_REPOSITORY' entspricht nicht der Kunden-Zuordnung '$EXPECTED_REPO'."
+            exit 1
+          fi
+          if [ "$GITHUB_REF_NAME" != "$EXPECTED_REF" ]; then
+            echo "::error::Ref '$GITHUB_REF_NAME' entspricht nicht der freigegebenen Ref '$EXPECTED_REF'."
+            exit 1
+          fi
+
+          KUNDE_NAME=$(jq -r '.customer.name' /tmp/ziel.json)
+          {
+            echo "KUNDE_NAME=$KUNDE_NAME"
+            echo "SSH_HOST=$(jq -r '.ssh.host' /tmp/ziel.json)"
+            echo "SSH_PORT=$(jq -r '.ssh.port' /tmp/ziel.json)"
+            echo "SSH_USER=$(jq -r '.ssh.user' /tmp/ziel.json)"
+            echo "SSHPASS=$(jq -r '.ssh.password' /tmp/ziel.json)"
+            echo "CMS_PATH=$(jq -r '.ssh.cms_path' /tmp/ziel.json)"
+            echo "FRONTEND_PATH=$(jq -r '.ssh.frontend_path' /tmp/ziel.json)"
+            echo "CMS_URL=$(jq -r '.urls.cms' /tmp/ziel.json)"
+            echo "FRONTEND_URL=$(jq -r '.urls.frontend' /tmp/ziel.json)"
+            echo "CMS_BASE_PATH=$(jq -r '.urls.base_path // ""' /tmp/ziel.json)"
+            echo "CMS_EMBEDDED=$(jq -r '.urls.embedded // false' /tmp/ziel.json)"
+            echo "HEALTH_TOKEN=$(jq -r '.tokens.health' /tmp/ziel.json)"
+          } >> "$GITHUB_ENV"
+
+          echo "Frontend '$FRONTEND_KEY' ist eindeutig $KUNDE_NAME zugeordnet."
+
+      - name: SSH und Ziel pruefen
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+          mkdir -p "$HOME/.ssh"
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> "$HOME/.ssh/known_hosts" 2>/dev/null
+          SSH_CMD="sshpass -e ssh -p $SSH_PORT"
+          echo "SSH_CMD=$SSH_CMD" >> "$GITHUB_ENV"
+
+          for feld in SSH_HOST SSH_USER SSHPASS FRONTEND_PATH CMS_URL FRONTEND_URL; do
+            if [ -z "${!feld:-}" ]; then
+              echo "::error::$feld ist leer."
+              exit 1
+            fi
+          done
+          if [[ ! "$FRONTEND_PATH" =~ ^[A-Za-z0-9._~/:+-]+$ ]]; then
+            echo "::error::Ungueltiger Frontend-Zielpfad."
+            exit 1
+          fi
+          case "$FRONTEND_PATH" in
+            /|/CMS|/Frontend|"")
+              echo "::error::Unsicherer Frontend-Zielpfad '$FRONTEND_PATH'."
+              exit 1
+              ;;
+          esac
+          if [ "$CMS_EMBEDDED" = "true" ] \
+            && [[ ! "$CMS_BASE_PATH" =~ ^/([A-Za-z0-9._~-]+/)*[A-Za-z0-9._~-]+$ ]]; then
+            echo "::error::Ungueltiger CMS-Basis-Pfad '$CMS_BASE_PATH'."
+            exit 1
+          fi
+
+          if ! $SSH_CMD "$SSH_USER@$SSH_HOST" "true"; then
+            echo "::error::SSH-Anmeldung fehlgeschlagen."
+            exit 1
+          fi
+          $SSH_CMD "$SSH_USER@$SSH_HOST" "mkdir -p '$FRONTEND_PATH'"
+          if ! $SSH_CMD "$SSH_USER@$SSH_HOST" "command -v rsync >/dev/null"; then
+            echo "::error::Auf dem Zielserver fehlt rsync."
+            exit 1
+          fi
+
+      - name: Kundenfrontend uebertragen
+        run: |
+          set -euo pipefail
+          STAGE=$(mktemp -d)
+          trap 'rm -rf -- "$STAGE"' EXIT
+
+          rsync --archive \
+            --exclude=.git/ --exclude=.github/ --exclude=.env --exclude=.claude/ \
+            --exclude=storage/ --exclude=vendor/ --exclude=node_modules/ \
+            --exclude=secrets/ --exclude=keys/ --exclude=*.zip \
+            ./ "$STAGE/"
+
+          EXTRA_EXCLUDE=()
+          if [ "$CMS_EMBEDDED" = "true" ]; then
+            CMS_REWRITE_PATH=${CMS_BASE_PATH#/}
+            CMS_REWRITE_PATH=${CMS_REWRITE_PATH//./\\.}
+            PATCHED=$(mktemp)
+            sed "/^[[:space:]]*RewriteEngine[[:space:]]\+On[[:space:]]*$/a\\
+          \\
+            # BEGIN DIGIWTAL CMS PATH DEPLOYMENT\\
+            RewriteRule ^${CMS_REWRITE_PATH}(?:/|$) - [L]\\
+            # END DIGIWTAL CMS PATH DEPLOYMENT" "$STAGE/.htaccess" > "$PATCHED"
+            mv "$PATCHED" "$STAGE/.htaccess"
+            chmod 644 "$STAGE/.htaccess"
+            EXTRA_EXCLUDE=("--exclude=${CMS_BASE_PATH#/}/")
+          fi
+
+          rsync --archive --compress --delete --human-readable \
+            --exclude=.env --exclude=storage/ "${EXTRA_EXCLUDE[@]}" \
+            -e "$SSH_CMD" "$STAGE/" "$SSH_USER@$SSH_HOST:$FRONTEND_PATH/"
+
+      - name: Frontend-.env aus der Verwaltung synchronisieren
+        run: |
+          set -euo pipefail
+          php .github/scripts/render-env.php frontend /tmp/ziel.json > /tmp/frontend.env
+
+          ziel="$SSH_USER@$SSH_HOST"
+          $SSH_CMD "$ziel" "if test -f '$FRONTEND_PATH/.env'; then cat '$FRONTEND_PATH/.env'; fi" > /tmp/frontend-current.env
+          awk -F= '
+            NR == FNR {
+              key = $1
+              if (!(key in managed)) order[++count] = key
+              managed[key] = $0
+              next
+            }
+            {
+              key = $1
+              if (key in managed) {
+                if (!(key in written)) print managed[key]
+                written[key] = 1
+                next
+              }
+              print
+            }
+            END {
+              for (i = 1; i <= count; i++) {
+                key = order[i]
+                if (!(key in written)) print managed[key]
+              }
+            }
+          ' /tmp/frontend.env /tmp/frontend-current.env > /tmp/frontend-merged.env
+
+          $SSH_CMD "$ziel" "cat > '$FRONTEND_PATH/.env.new' && chmod 600 '$FRONTEND_PATH/.env.new' && mv '$FRONTEND_PATH/.env.new' '$FRONTEND_PATH/.env'" < /tmp/frontend-merged.env
+          $SSH_CMD "$SSH_USER@$SSH_HOST" "mkdir -p '$FRONTEND_PATH/storage' && chmod 755 '$FRONTEND_PATH/storage'"
+          echo "Frontend-.env aus der Verwaltung synchronisiert; eigene Zusatzwerte wurden erhalten."
+
+      - name: CMS und Frontend pruefen
+        env:
+          VERWALTUNG_URL: ${{ secrets.VERWALTUNG_URL }}
+          CI_TOKEN: ${{ secrets.VERWALTUNG_CI_TOKEN }}
+        run: |
+          set -euo pipefail
+          CMS_HEALTH_URL="${CMS_URL%/}/api.php/api/health"
+
+          CMS_START=$(date +%s%N)
+          CMS_HTTP=$(curl -sS --max-time 15 -o /tmp/cms-health.json -w '%{http_code}' \
+            -H "X-Health-Token: $HEALTH_TOKEN" -H "Accept: application/json" \
+            "$CMS_HEALTH_URL" || true)
+          CMS_END=$(date +%s%N)
+          CMS_MS=$(( (CMS_END - CMS_START) / 1000000 ))
+          CMS_HTTP=$((10#${CMS_HTTP:-0}))
+          jq -e . /tmp/cms-health.json >/dev/null 2>&1 || echo '{}' > /tmp/cms-health.json
+
+          FRONTEND_START=$(date +%s%N)
+          FRONTEND_HTTP=$(curl -sS -L --max-time 15 -o /dev/null -w '%{http_code}' "$FRONTEND_URL" || true)
+          FRONTEND_END=$(date +%s%N)
+          FRONTEND_MS=$(( (FRONTEND_END - FRONTEND_START) / 1000000 ))
+          FRONTEND_HTTP=$((10#${FRONTEND_HTTP:-0}))
+
+          jq -n \
+            --arg kunde "$KUNDE_ID" \
+            --arg cms_url "$CMS_HEALTH_URL" \
+            --arg frontend_url "$FRONTEND_URL" \
+            --argjson cms_http "$CMS_HTTP" \
+            --argjson cms_ms "$CMS_MS" \
+            --argjson frontend_http "$FRONTEND_HTTP" \
+            --argjson frontend_ms "$FRONTEND_MS" \
+            --slurpfile body /tmp/cms-health.json \
+            '{source:"rollout",results:[{customer:($kunde|tonumber),cms:{url:$cms_url,http_code:$cms_http,response_ms:$cms_ms,error:null,body:$body[0]},frontend:{checked:true,url:$frontend_url,http_code:$frontend_http,response_ms:$frontend_ms,error:null}}]}' \
+            > /tmp/report.json
+
+          STATUS=$(curl -sS --max-time 30 -o /tmp/antwort.json -w '%{http_code}' \
+            -X POST -H "X-Ci-Token: $CI_TOKEN" -H "Content-Type: application/json" \
+            --data-binary @/tmp/report.json \
+            "${VERWALTUNG_URL%/}/api/ci/health-report")
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Health-Report wurde mit HTTP $STATUS abgelehnt."
+            exit 1
+          fi
+
+          ERGEBNIS=$(jq -r '.recorded[0].status // "unbekannt"' /tmp/antwort.json)
+          if [ "$ERGEBNIS" != "healthy" ]; then
+            echo "::error::$KUNDE_NAME meldet '$ERGEBNIS'."
+            exit 1
+          fi
+          echo "$KUNDE_NAME ist nach dem Frontend-Rollout healthy."

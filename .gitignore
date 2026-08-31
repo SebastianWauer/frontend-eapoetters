@@ -1,0 +1,14 @@
+.env
+storage/
+vendor/
+keys/
+secrets/
+.ssh/
+.idea/
+.vscode/
+.claude/
+*.swp
+*.user.ini
+*.zip
+.DS_Store
+Thumbs.db
