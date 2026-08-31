@@ -55,6 +55,7 @@ $baseUrl  = (string)(getenv('CMS_API_URL')   ?: '');
 $token    = (string)(getenv('CMS_API_TOKEN') ?: '');
 $timeout  = (int)(getenv('CMS_TIMEOUT')      ?: 5);
 $cacheTtl = 0; // Live-Frontend: Seiteninhalte immer direkt aus dem CMS holen.
+$resolveIp = (string)(getenv('CMS_RESOLVE_IP') ?: '');
 $frontendBaseUrl = (string)(getenv('FRONTEND_BASE_URL') ?: '');
 $cmsSitemapUrl   = (string)(getenv('CMS_SITEMAP_URL') ?: '');
 
@@ -69,7 +70,8 @@ $client = new CmsApiClient(
     token:    $token !== '' ? $token : null,
     timeout:  $timeout,
     cacheTtl: $cacheTtl,
-    cacheDir: __DIR__ . '/storage/cache'
+    cacheDir: __DIR__ . '/storage/cache',
+    resolveIp: $resolveIp !== '' ? $resolveIp : null
 );
 
 // -------------------------------------------------------
@@ -1151,5 +1153,4 @@ try {
 } catch (Throwable) {
     render500($siteName);
 }
-
 

@@ -39,6 +39,7 @@ $baseUrl  = (string)(getenv('CMS_API_URL')   ?: '');
 $token    = (string)(getenv('CMS_API_TOKEN') ?: '');
 $timeout  = (int)(getenv('CMS_TIMEOUT')      ?: 5);
 $cacheTtl = 0; // Farben aus CMS immer live ziehen
+$resolveIp = (string)(getenv('CMS_RESOLVE_IP') ?: '');
 
 // -------------------------------------------------------
 // Defaults
@@ -56,7 +57,8 @@ if ($baseUrl !== '') {
         token:    $token !== '' ? $token : null,
         timeout:  $timeout,
         cacheTtl: $cacheTtl,
-        cacheDir: dirname(__DIR__, 2) . '/storage/cache'
+        cacheDir: dirname(__DIR__, 2) . '/storage/cache',
+        resolveIp: $resolveIp !== '' ? $resolveIp : null
     );
 
     try {

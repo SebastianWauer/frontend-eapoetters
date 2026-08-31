@@ -189,6 +189,23 @@ jobs:
           set -euo pipefail
           php .github/scripts/render-env.php frontend /tmp/ziel.json > /tmp/frontend.env
 
+          CMS_HOST=$(php -r '
+            $host = parse_url((string)getenv("CMS_URL"), PHP_URL_HOST);
+            if (!is_string($host) || $host === "") {
+              fwrite(STDERR, "CMS-Hostname konnte nicht ermittelt werden.\n");
+              exit(1);
+            }
+            echo $host;
+          ')
+          CMS_RESOLVE_IP=$(getent ahostsv4 "$CMS_HOST" | awk '{print $1; exit}')
+          if [ -z "$CMS_RESOLVE_IP" ] \
+            || ! php -r 'exit(filter_var($argv[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ? 0 : 1);' "$CMS_RESOLVE_IP"; then
+            echo "::error::IPv4-Adresse fuer $CMS_HOST konnte nicht ermittelt werden."
+            exit 1
+          fi
+          printf 'CMS_RESOLVE_IP="%s"\n' "$CMS_RESOLVE_IP" >> /tmp/frontend.env
+          echo "CMS-Aufloesung fuer das Frontend auf $CMS_RESOLVE_IP festgelegt."
+
           ziel="$SSH_USER@$SSH_HOST"
           $SSH_CMD "$ziel" "if test -f '$FRONTEND_PATH/.env'; then cat '$FRONTEND_PATH/.env'; fi" > /tmp/frontend-current.env
           awk -F= '

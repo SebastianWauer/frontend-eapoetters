@@ -30,19 +30,30 @@ class CmsApiClient
     private int     $timeout;
     private int     $cacheTtl;
     private string  $cacheDir;
+    private ?string $resolveIp;
+    private ?string $resolveHost;
 
     public function __construct(
         string  $baseUrl,
         ?string $token    = null,
         int     $timeout  = 5,
         int     $cacheTtl = 0,
-        string  $cacheDir = ''
+        string  $cacheDir = '',
+        ?string $resolveIp = null
     ) {
         $this->baseUrl  = rtrim($baseUrl, '/');
         $this->token    = ($token !== null && $token !== '') ? $token : null;
         $this->timeout  = max(1, $timeout);
         $this->cacheTtl = max(0, $cacheTtl);
         $this->cacheDir = $cacheDir !== '' ? rtrim($cacheDir, '/') : '';
+        $this->resolveIp = $resolveIp !== null
+            && filter_var($resolveIp, FILTER_VALIDATE_IP) !== false
+                ? $resolveIp
+                : null;
+        $baseHost = parse_url($this->baseUrl, PHP_URL_HOST);
+        $this->resolveHost = is_string($baseHost) && $baseHost !== ''
+            ? strtolower($baseHost)
+            : null;
     }
 
     // -------------------------------------------------------
@@ -276,6 +287,18 @@ class CmsApiClient
             CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_FOLLOWLOCATION => false,
         ];
+        $requestHost = parse_url($url, PHP_URL_HOST);
+        if ($this->resolveIp !== null
+            && $this->resolveHost !== null
+            && is_string($requestHost)
+            && strtolower($requestHost) === $this->resolveHost) {
+            $scheme = strtolower((string)(parse_url($url, PHP_URL_SCHEME) ?: 'https'));
+            $port = (int)(parse_url($url, PHP_URL_PORT) ?: ($scheme === 'http' ? 80 : 443));
+            $address = str_contains($this->resolveIp, ':')
+                ? '[' . $this->resolveIp . ']'
+                : $this->resolveIp;
+            $opts[CURLOPT_RESOLVE] = [$requestHost . ':' . $port . ':' . $address];
+        }
         if (strtoupper($method) !== 'GET') {
             $opts[CURLOPT_CUSTOMREQUEST] = strtoupper($method);
             $opts[CURLOPT_POSTFIELDS] = $body ?? '';
