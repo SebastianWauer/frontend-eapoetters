@@ -10,3 +10,14 @@ zugeordneten CMS-Instanz geladen.
 2. `php -S localhost:8002 index.php` starten.
 
 `.env`, Cache, Logs, Schlüssel und sonstige Laufzeitdaten bleiben lokal.
+
+## Zuordnung in der Verwaltung
+
+Vor dem ersten Rollout müssen beim Kundendatensatz von EA Poetters diese Werte
+unter **Frontend-Zuordnung** hinterlegt sein:
+
+- Frontend-Key: `ea-poetters`
+- Frontend-Repository: `SebastianWauer/frontend-eapoetters`
+- Branch oder Tag: `main`
+
+Der Frontend-Key muss mit der `id` in `frontend.json` übereinstimmen.
