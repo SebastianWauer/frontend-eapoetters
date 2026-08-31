@@ -125,6 +125,28 @@ if (!function_exists('markNavActive')) {
 /**
  * Render navigation tree recursively
  */
+if (!function_exists('sidebarIconSvg')) {
+    function sidebarIconSvg(string $name): string {
+        $name = strtolower($name);
+        $content = match (true) {
+            str_contains($name, 'gravur') => '<path d="M20 12l-8 8-9-9V4h7z"/><circle cx="7.5" cy="8" r="1"/>',
+            str_contains($name, 'druck') => '<path d="M7 8V3h10v5"/><rect x="5" y="14" width="14" height="7" rx="1"/><path d="M5 17H3v-7h18v7h-2M8 11h1"/>',
+            str_contains($name, 'beschrift') => '<path d="M5 5h14M12 5v14M8 19h8"/>',
+            str_contains($name, 'stempel') => '<path d="M8 14h8l-1-4a3 3 0 0 0-6 0zM6 14h12v4H6zM4 21h16"/>',
+            str_contains($name, 'sicherheit') => '<path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+            str_contains($name, 'pruef'), str_contains($name, 'prüf') => '<circle cx="12" cy="12" r="8"/><path d="M8.5 12l2.2 2.2 4.8-4.8"/>',
+            str_contains($name, 'betrieb') => '<path d="M4 20V7h5v4l5-3v3l6-3v12z"/><path d="M8 16h1M13 16h1M18 16h1"/>',
+            str_contains($name, 'sonder') => '<path d="M12 3l1.4 4.1L17 9l-3.6 1.9L12 15l-1.4-4.1L7 9l3.6-1.9zM18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8zM5 14l.8 2.2L8 17l-2.2.8L5 20l-.8-2.2L2 17l2.2-.8z"/>',
+            str_contains($name, 'adresse') => '<path d="M12 21s6-5.2 6-11a6 6 0 1 0-12 0c0 5.8 6 11 6 11z"/><circle cx="12" cy="10" r="2"/>',
+            str_contains($name, 'telefon') => '<path d="M5 4l4 3-2 3c1.5 3 3.5 5 6.5 6.5l3-2 3 4c-1 2-3 2.5-5 2-5.5-1.5-10.5-6.5-12-12-.5-2 0-4 2.5-4.5z"/>',
+            str_contains($name, 'mail') => '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M4 7l8 6 8-6"/>',
+            default => '<circle cx="12" cy="12" r="8"/><path d="M9 12h6M13 10l2 2-2 2"/>',
+        };
+
+        return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' . $content . '</svg>';
+    }
+}
+
 if (!function_exists('renderNavTree')) {
     function renderNavTree(array $tree, string $activeFaviconUrl = '', string $currentPath = '/', string $currentSlug = ''): void {
         if (empty($tree)) {
@@ -160,12 +182,9 @@ if (!function_exists('renderNavTree')) {
                 echo ' aria-current="page"';
             }
             echo '>';
-            if ($activeFaviconUrl !== '') {
-                echo '<span class="site-nav__active-icon-wrap" aria-hidden="true">';
-                echo '<img class="site-nav__active-icon" src="' . e($activeFaviconUrl) . '" alt="" loading="lazy">';
-                echo '</span>';
-            }
-            echo '<span>' . e($node['title']) . '</span></a>';
+            echo '<span class="site-nav__icon">' . sidebarIconSvg((string)$node['title']) . '</span>';
+            echo '<span class="site-nav__label">' . e($node['title']) . '</span>';
+            echo '<span class="site-nav__chevron" aria-hidden="true">›</span></a>';
             
             if (!empty($node['children'])) {
                 renderNavTree($node['children'], $activeFaviconUrl, $currentPath, $currentSlug);
@@ -242,6 +261,7 @@ $isContactPage = $currentPath === '/kontakt' || trim(strtolower((string)($slug ?
     <div class="site-sidebar__panel" id="sidebar-panel">
         <?php if (!empty($tree)): ?>
         <nav class="site-nav" aria-label="Hauptnavigation">
+            <span class="site-nav__eyebrow">Leistungen</span>
             <?php renderNavTree($tree, $activeFaviconUrl, $currentPath, (string)($slug ?? '')); ?>
         </nav>
         <?php endif; ?>
@@ -251,29 +271,31 @@ $isContactPage = $currentPath === '/kontakt' || trim(strtolower((string)($slug ?
             <address class="site-sidebar__contact">
                 <?php if ($contactAddress !== '' || $contactPostalCity !== '' || $contactCountry !== ''): ?>
                 <div class="site-sidebar__contact-item site-sidebar__contact-item--address">
-                    <?php if ($contactAddress !== ''): ?><span><?= nl2br(e($contactAddress)) ?></span><?php endif; ?>
-                    <?php if ($contactPostalCity !== ''): ?><span><?= e($contactPostalCity) ?></span><?php endif; ?>
-                    <?php if ($contactCountry !== ''): ?><span><?= e($contactCountry) ?></span><?php endif; ?>
+                    <span class="site-sidebar__contact-icon"><?= sidebarIconSvg('Adresse') ?></span>
+                    <span class="site-sidebar__contact-copy">
+                        <?php if ($contactAddress !== ''): ?><span><?= nl2br(e($contactAddress)) ?></span><?php endif; ?>
+                        <?php if ($contactPostalCity !== ''): ?><span><?= e($contactPostalCity) ?></span><?php endif; ?>
+                        <?php if ($contactCountry !== ''): ?><span><?= e($contactCountry) ?></span><?php endif; ?>
+                    </span>
                 </div>
                 <?php endif; ?>
                 <?php if ($contactPhone !== ''): ?>
                 <a class="site-sidebar__contact-item" href="tel:<?= e($contactPhoneHref) ?>">
-                    <span class="site-sidebar__contact-label">Telefon</span>
-                    <span><?= e($contactPhone) ?></span>
+                    <span class="site-sidebar__contact-icon"><?= sidebarIconSvg('Telefon') ?></span>
+                    <span class="site-sidebar__contact-copy"><?= e($contactPhone) ?></span>
                 </a>
                 <?php endif; ?>
                 <?php if ($contactEmail !== ''): ?>
                 <a class="site-sidebar__contact-item" href="mailto:<?= e($contactEmail) ?>">
-                    <span class="site-sidebar__contact-label">E-Mail</span>
-                    <span><?= e($contactEmail) ?></span>
+                    <span class="site-sidebar__contact-icon"><?= sidebarIconSvg('E-Mail') ?></span>
+                    <span class="site-sidebar__contact-copy"><?= e($contactEmail) ?></span>
                 </a>
                 <?php endif; ?>
             </address>
             <?php endif; ?>
 
             <a class="site-sidebar__contact-badge<?= $isContactPage ? ' is-active' : '' ?>" href="/kontakt"<?= $isContactPage ? ' aria-current="page"' : '' ?>>
-                Kontakt
-                <span aria-hidden="true">→</span>
+                Angebot anfragen
             </a>
         </div>
     </div>
