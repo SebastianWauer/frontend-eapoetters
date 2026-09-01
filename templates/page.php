@@ -5,6 +5,9 @@ $blocksList = is_array($blocks ?? null) ? $blocks : [];
 $contactFormStates = is_array($contactFormStates ?? null) ? $contactFormStates : [];
 $contactTurnstileSiteKey = (isset($contactTurnstileSiteKey) && is_string($contactTurnstileSiteKey)) ? trim($contactTurnstileSiteKey) : '';
 $publicSettings = is_array($publicSettings ?? null) ? $publicSettings : [];
+$navItems = is_array($navItems ?? null) ? $navItems : [];
+$faviconUrl = trim((string)($faviconUrl ?? ''));
+$assetBaseUrl = trim((string)($assetBaseUrl ?? ''));
 $client = $client ?? null; // nicht jeder Render-Pfad reicht ihn durch (z.B. Fehlerseiten)
 
 $currentSlug = trim((string)($slug ?? ''), '/');
@@ -87,7 +90,7 @@ foreach ($blocksList as $blockIndex => $block):
         continue;
     }
     $type = (string)($block['type'] ?? '');
-    render_page_blocks([$block], compact('contactFormStates', 'currentSlug', 'contactTurnstileSiteKey', 'publicSettings', 'client'));
+    render_page_blocks([$block], compact('contactFormStates', 'currentSlug', 'contactTurnstileSiteKey', 'publicSettings', 'client', 'navItems', 'faviconUrl', 'assetBaseUrl'));
 
     if (!$headingRendered && $type === 'dual_hero') {
         // Der linke Bereich des Doppel-Heros enthält bereits die Seiten-H1.

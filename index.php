@@ -262,6 +262,24 @@ function absolutizeCmsMediaUrl(string $url, string $cmsBaseUrl): string
     return rtrim($cmsBaseUrl, '/') . $mediaPath . ($query !== '' ? ('?' . $query) : '');
 }
 
+function absolutizePageCarouselIcons(array $blocks, string $cmsBaseUrl): array
+{
+    $walk = static function ($value) use (&$walk, $cmsBaseUrl) {
+        if (!is_array($value)) return $value;
+        foreach ($value as $key => $item) {
+            if (is_array($item)) {
+                $value[$key] = $walk($item);
+                continue;
+            }
+            if ((string)$key === 'page_icon_url' && is_string($item)) {
+                $value[$key] = absolutizeCmsMediaUrl($item, $cmsBaseUrl);
+            }
+        }
+        return $value;
+    };
+    return $walk($blocks);
+}
+
 function frontendFormSecret(): string
 {
     $secret = (string)(getenv('FRONTEND_FORM_SECRET') ?: '');
@@ -1085,6 +1103,12 @@ $navItems = [];
 try {
     $navResult = $client->getNavigation();
     $navItems = $navResult['items'] ?? [];
+    $cmsBaseUrlForNavigation = deriveCmsBaseUrlFromApiBase($baseUrl);
+    foreach ($navItems as $index => $item) {
+        if (!is_array($item)) continue;
+        $item['icon_url'] = absolutizeCmsMediaUrl((string)($item['icon_url'] ?? ''), $cmsBaseUrlForNavigation);
+        $navItems[$index] = $item;
+    }
 } catch (CmsApiException) {
     // Navigation failure should not break the page
     $navItems = [];
@@ -1132,6 +1156,7 @@ if ($internalTitle === '') {
 $title = $internalTitle . ' - ' . $siteName;
 $blocks = is_array($page['blocks'] ?? null) ? $page['blocks'] : [];
 $cmsBaseUrl = deriveCmsBaseUrlFromApiBase($baseUrl);
+$blocks = absolutizePageCarouselIcons($blocks, $cmsBaseUrl);
 $blocks = enrichBlockFocusWithMedia($blocks, $client, $cmsBaseUrl);
 $blocks = enrichEventBlocksWithItems($blocks, $client, $cmsBaseUrl);
 $blocks = enrichNewsBlocksWithItems($blocks, $client, $cmsBaseUrl);

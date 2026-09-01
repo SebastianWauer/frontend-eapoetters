@@ -65,6 +65,7 @@ if (!function_exists('buildNavTree')) {
                 'title' => (string)($item['title'] ?? 'Untitled'),
                 'url' => $url,
                 'slug' => (string)($item['slug'] ?? ''),
+                'icon_url' => trim((string)($item['icon_url'] ?? '')),
                 'is_home' => !empty($item['is_home']),
                 'nav_order' => (int)($item['nav_order'] ?? $item['sort_order'] ?? 9999),
                 'children' => buildNavTree($items, $nodeId, array_merge($visitedIds, [$nodeId]))
@@ -183,7 +184,13 @@ if (!function_exists('renderNavTree')) {
                 echo ' aria-current="page"';
             }
             echo '>';
-            echo '<span class="site-nav__icon">' . sidebarIconSvg((string)$node['title']) . '</span>';
+            $iconUrl = trim((string)($node['icon_url'] ?? ''));
+            if ($iconUrl !== '' && preg_match('#^(https?://|/)#i', $iconUrl) !== 1) $iconUrl = '';
+            if ($iconUrl === '') $iconUrl = $activeFaviconUrl;
+            $iconMarkup = $iconUrl !== ''
+                ? '<img src="' . e($iconUrl) . '" alt="" aria-hidden="true">'
+                : sidebarIconSvg((string)$node['title']);
+            echo '<span class="site-nav__icon">' . $iconMarkup . '</span>';
             echo '<span class="site-nav__label">' . e($node['title']) . '</span>';
             echo '<span class="site-nav__chevron" aria-hidden="true">›</span></a>';
             

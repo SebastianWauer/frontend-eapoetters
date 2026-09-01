@@ -22,15 +22,23 @@ if (!is_array($rawItems)) {
 }
 
 $items = [];
+$fallbackIconUrl = trim((string)($faviconUrl ?? ''));
+if ($fallbackIconUrl === '') {
+    $fallbackIconUrl = rtrim((string)($assetBaseUrl ?? ''), '/') . '/favicon.ico';
+}
 foreach (array_slice($rawItems, 0, 12) as $rawItem) {
     if (!is_array($rawItem)) continue;
     $slug = trim((string)($rawItem['page_slug'] ?? ''));
     $title = trim((string)($rawItem['page_title'] ?? ''));
     $imageUrl = trim((string)($rawItem['image_url'] ?? ''));
     $text = trim((string)($rawItem['text'] ?? ''));
+    $iconUrl = trim((string)($rawItem['page_icon_url'] ?? ''));
     if ($slug === '' || $slug[0] !== '/' || str_starts_with($slug, '//') || $title === '') continue;
     if ($imageUrl !== '' && preg_match('#^(https?://|/)#i', $imageUrl) !== 1) {
         $imageUrl = '';
+    }
+    if ($iconUrl === '' || preg_match('#^(https?://|/)#i', $iconUrl) !== 1) {
+        $iconUrl = $fallbackIconUrl;
     }
     $items[] = [
         'slug' => $slug,
@@ -38,6 +46,7 @@ foreach (array_slice($rawItems, 0, 12) as $rawItem) {
         'image_url' => $imageUrl,
         'focus_x' => focus_to_percent($rawItem['image_url_focus_x'] ?? null, 50.0),
         'focus_y' => focus_to_percent($rawItem['image_url_focus_y'] ?? null, 50.0),
+        'icon_url' => $iconUrl,
         'text' => $text,
     ];
 }
@@ -70,7 +79,7 @@ $carouselId = 'page-carousel-' . $renderIndex . '-' . substr(sha1((string)json_e
           <span class="page-carousel__scrim" aria-hidden="true"></span>
           <span class="page-carousel__content">
             <span class="page-carousel__card-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg>
+              <img src="<?= $e($item['icon_url']) ?>" alt="">
             </span>
             <span class="page-carousel__copy">
               <strong><?= $e($item['title']) ?></strong>

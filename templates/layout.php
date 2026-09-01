@@ -77,7 +77,7 @@
     ?>
     
     <main>
-        <?php render('templates/page.php', compact('pageTitle', 'pageSubtitle', 'blocks', 'contactFormStates', 'slug', 'contactTurnstileSiteKey', 'publicSettings', 'client')); ?>
+        <?php render('templates/page.php', compact('pageTitle', 'pageSubtitle', 'blocks', 'contactFormStates', 'slug', 'contactTurnstileSiteKey', 'publicSettings', 'client', 'navItems', 'faviconUrl', 'assetBaseUrl')); ?>
     </main>
     
     <?php if (!$previewMainOnly) { render('templates/partials/footer.php', compact('siteName', 'footerNavItems', 'publicSettings')); } ?>
