@@ -37,6 +37,7 @@ if (!function_exists('render_page_blocks')) {
             $template = match ($type) {
                 'text'    => 'themes/default/blocks/text.php',
                 'hero'    => 'themes/default/blocks/hero.php',
+                'dual_hero' => 'themes/default/blocks/dual_hero.php',
                 'image'   => 'themes/default/blocks/image.php',
                 'columns' => 'themes/default/blocks/columns.php',
                 'cta'     => 'themes/default/blocks/cta.php',
@@ -62,7 +63,7 @@ foreach ($blocksList as $candidateBlock) {
     if (!is_array($candidateBlock)) {
         continue;
     }
-    if ((string)($candidateBlock['type'] ?? '') === 'hero') {
+    if (in_array((string)($candidateBlock['type'] ?? ''), ['hero', 'dual_hero'], true)) {
         $hasHero = true;
         break;
     }
@@ -87,7 +88,7 @@ foreach ($blocksList as $blockIndex => $block):
     $type = (string)($block['type'] ?? '');
     render_page_blocks([$block], compact('contactFormStates', 'currentSlug', 'contactTurnstileSiteKey', 'publicSettings', 'client'));
 
-    if (!$headingRendered && $type === 'hero') {
+    if (!$headingRendered && in_array($type, ['hero', 'dual_hero'], true)) {
         $headingRendered = true;
         ?>
         <section class="page-headline-wrap">
