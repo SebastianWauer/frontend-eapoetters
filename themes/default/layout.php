@@ -71,17 +71,23 @@ if ($faviconUrl === '' && isset($settings['favicon_media_id']) && (int)$settings
 }
 
 $headerLogoUrl = trim((string)($headerLogoUrl ?? ''));
-if ($headerLogoUrl === '' && isset($settings['cms_logo_light_url']) && is_string($settings['cms_logo_light_url'])) {
-    $headerLogoUrl = trim($settings['cms_logo_light_url']);
+if ($headerLogoUrl === '' && isset($settings['cms_logo_dark_url']) && is_string($settings['cms_logo_dark_url'])) {
+    $headerLogoUrl = trim($settings['cms_logo_dark_url']);
 }
 if ($headerLogoUrl === '' && isset($settings['logo_url']) && is_string($settings['logo_url'])) {
     $headerLogoUrl = trim($settings['logo_url']);
 }
-if ($headerLogoUrl === '' && isset($settings['cms_logo_light_media_id']) && (int)$settings['cms_logo_light_media_id'] > 0) {
-    $headerLogoUrl = $cmsAssetBasePath . '/media/file?id=' . (int)$settings['cms_logo_light_media_id'];
+if ($headerLogoUrl === '' && isset($settings['cms_logo_dark_media_id']) && (int)$settings['cms_logo_dark_media_id'] > 0) {
+    $headerLogoUrl = $cmsAssetBasePath . '/media/file?id=' . (int)$settings['cms_logo_dark_media_id'];
 }
 if ($headerLogoUrl === '' && isset($settings['logo_media_id']) && (int)$settings['logo_media_id'] > 0) {
     $headerLogoUrl = $cmsAssetBasePath . '/media/file?id=' . (int)$settings['logo_media_id'];
+}
+if ($headerLogoUrl === '' && isset($settings['cms_logo_light_url']) && is_string($settings['cms_logo_light_url'])) {
+    $headerLogoUrl = trim($settings['cms_logo_light_url']);
+}
+if ($headerLogoUrl === '' && isset($settings['cms_logo_light_media_id']) && (int)$settings['cms_logo_light_media_id'] > 0) {
+    $headerLogoUrl = $cmsAssetBasePath . '/media/file?id=' . (int)$settings['cms_logo_light_media_id'];
 }
 
 if (!function_exists('render')) {

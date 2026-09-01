@@ -1057,11 +1057,14 @@ try {
         $faviconUrl = absolutizeCmsMediaUrl($settings['favicon_url'], deriveCmsBaseUrlFromApiBase($baseUrl));
     }
     $logoCandidate = '';
-    if (isset($settings['cms_logo_light_url']) && is_string($settings['cms_logo_light_url'])) {
-        $logoCandidate = trim($settings['cms_logo_light_url']);
+    if (isset($settings['cms_logo_dark_url']) && is_string($settings['cms_logo_dark_url'])) {
+        $logoCandidate = trim($settings['cms_logo_dark_url']);
     }
     if ($logoCandidate === '' && isset($settings['logo_url']) && is_string($settings['logo_url'])) {
         $logoCandidate = trim($settings['logo_url']);
+    }
+    if ($logoCandidate === '' && isset($settings['cms_logo_light_url']) && is_string($settings['cms_logo_light_url'])) {
+        $logoCandidate = trim($settings['cms_logo_light_url']);
     }
     if ($logoCandidate !== '') {
         $headerLogoUrl = absolutizeCmsMediaUrl($logoCandidate, deriveCmsBaseUrlFromApiBase($baseUrl));
@@ -1153,4 +1156,3 @@ try {
 } catch (Throwable) {
     render500($siteName);
 }
-
