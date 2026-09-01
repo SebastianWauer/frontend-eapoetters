@@ -50,10 +50,11 @@ $carouselId = 'page-carousel-' . $renderIndex . '-' . substr(sha1((string)json_e
 ?>
 <section class="block block-page-carousel" id="<?= $e($carouselId) ?>" data-page-carousel>
   <div class="page-carousel__inner">
-    <header class="page-carousel__header">
-      <?php if ($headline !== ''): ?><h2><?= $e($headline) ?></h2><?php endif; ?>
-      <span class="page-carousel__count"><?= $count ?> <?= $count === 1 ? 'Seite' : 'Seiten' ?></span>
-    </header>
+    <?php if ($headline !== ''): ?>
+    <div class="page-carousel__header">
+      <h2><?= $e($headline) ?></h2>
+    </div>
+    <?php endif; ?>
 
     <div class="page-carousel__stage" tabindex="0" role="region" aria-roledescription="Karussell" aria-label="<?= $e($headline !== '' ? $headline : 'Ausgewählte Seiten') ?>">
       <?php foreach ($items as $index => $item): ?>
@@ -62,7 +63,7 @@ $carouselId = 'page-carousel-' . $renderIndex . '-' . substr(sha1((string)json_e
         ?>
         <a class="page-carousel__slide" href="<?= $e($item['slug']) ?>" data-carousel-slide="<?= $index ?>" data-pos="<?= $position ?>" aria-label="<?= $e($item['title']) ?>">
           <?php if ($item['image_url'] !== ''): ?>
-            <img class="page-carousel__image" src="<?= $e($item['image_url']) ?>" alt="" loading="lazy" style="object-position:<?= $e((string)$item['focus_x']) ?>% <?= $e((string)$item['focus_y']) ?>%">
+            <img class="page-carousel__image" src="<?= $e($item['image_url']) ?>" alt="" loading="lazy" draggable="false" style="object-position:<?= $e((string)$item['focus_x']) ?>% <?= $e((string)$item['focus_y']) ?>%">
           <?php else: ?>
             <span class="page-carousel__image-placeholder" aria-hidden="true"></span>
           <?php endif; ?>
@@ -110,10 +111,31 @@ $carouselId = 'page-carousel-' . $renderIndex . '-' . substr(sha1((string)json_e
   const next = root.querySelector('[data-carousel-next]');
   const stage = root.querySelector('.page-carousel__stage');
   const status = root.querySelector('[data-carousel-status]');
+  const sidebarLinks = Array.from(document.querySelectorAll('.site-sidebar .site-nav a[href]'));
   const total = slides.length;
   let current = 0;
   let timer = null;
   let pointerStart = null;
+
+  const normalizePath = (value) => {
+    try {
+      const path = new URL(value, window.location.origin).pathname.replace(/\/+$/, '');
+      return path || '/';
+    } catch (_) {
+      return '';
+    }
+  };
+
+  const syncSidebar = () => {
+    const focusedPath = normalizePath(slides[current]?.getAttribute('href') || '');
+    let hasMatch = false;
+    sidebarLinks.forEach((link) => {
+      const matches = focusedPath !== '' && normalizePath(link.getAttribute('href') || '') === focusedPath;
+      link.classList.toggle('is-carousel-focus', matches);
+      hasMatch = hasMatch || matches;
+    });
+    document.body.classList.toggle('has-carousel-nav-focus', hasMatch);
+  };
 
   const show = (requested) => {
     if (total === 0) return;
@@ -130,6 +152,7 @@ $carouselId = 'page-carousel-' . $renderIndex . '-' . substr(sha1((string)json_e
       else dot.removeAttribute('aria-current');
     });
     if (status) status.textContent = `${current + 1} von ${total}`;
+    syncSidebar();
   };
 
   const stop = () => {
@@ -145,12 +168,11 @@ $carouselId = 'page-carousel-' . $renderIndex . '-' . substr(sha1((string)json_e
 
   slides.forEach((slide, index) => {
     slide.addEventListener('click', (event) => {
-      if (index === current) return;
+      if (slide.dataset.pos === 'current') return;
       event.preventDefault();
       current = index;
       restart();
     });
-    slide.addEventListener('focus', () => show(index));
   });
   dots.forEach((dot, index) => dot.addEventListener('click', () => {
     current = index;

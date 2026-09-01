@@ -523,23 +523,22 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 
 /* ── Seiten-Karussell ──────────────────────────────── */
 .block-page-carousel {
-  padding: 0.875rem var(--container-pad) 1rem;
+  padding: 0.875rem 0 1rem;
   border-bottom: 1px solid rgba(195, 199, 205, 0.7);
-  background: #faf9f7;
+  overflow: hidden;
+  background: var(--color-bg);
 }
 
 .page-carousel__inner {
   width: 100%;
-  max-width: 72rem;
-  margin-inline: auto;
+  max-width: none;
+  margin-inline: 0;
 }
 
 .page-carousel__header {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 0.625rem;
+  padding: 0 var(--container-pad) 0.75rem;
 }
 
 .page-carousel__header h2 {
@@ -549,22 +548,33 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   line-height: 1.25;
 }
 
-.page-carousel__count {
-  flex: 0 0 auto;
-  color: #c41e3a;
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .page-carousel__stage {
   position: relative;
+  width: 100%;
   height: clamp(18rem, 62vw, 24rem);
   overflow: hidden;
   outline: none;
   touch-action: pan-y;
+}
+
+.page-carousel__stage::before,
+.page-carousel__stage::after {
+  position: absolute;
+  inset-block: 0;
+  z-index: 20;
+  width: clamp(2rem, 7vw, 7rem);
+  pointer-events: none;
+  content: "";
+}
+
+.page-carousel__stage::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--color-bg), transparent);
+}
+
+.page-carousel__stage::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--color-bg), transparent);
 }
 
 .page-carousel__stage:focus-visible {
@@ -580,11 +590,11 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   display: block;
   width: 82%;
   overflow: hidden;
-  border: 1px solid rgba(195, 199, 205, 0.7);
-  border-radius: 0.75rem;
+  border: 0;
+  border-radius: 0.3rem;
   color: #fff;
   background: #202225;
-  box-shadow: 0 0.5rem 1rem rgba(23, 24, 26, 0.16);
+  box-shadow: 0 0.75rem 1.75rem rgba(23, 24, 26, 0.18);
   opacity: 0;
   transform: translateX(-50%) scale(0.92);
   transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s, filter 0.4s;
@@ -604,14 +614,14 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 
 .page-carousel__slide[data-pos="prev"] {
   z-index: 10;
-  opacity: 0.5;
+  opacity: 0.58;
   filter: saturate(0.7) brightness(0.92);
   transform: translateX(-150%);
 }
 
 .page-carousel__slide[data-pos="next"] {
   z-index: 10;
-  opacity: 0.5;
+  opacity: 0.58;
   filter: saturate(0.7) brightness(0.92);
   transform: translateX(50%);
 }
@@ -634,6 +644,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 
 .page-carousel__image {
   object-fit: cover;
+  user-select: none;
   transition: transform 0.55s ease;
 }
 
@@ -3079,11 +3090,18 @@ body.has-sidebar > footer {
 .site-sidebar .site-nav a:hover,
 .site-sidebar .site-nav a.active:hover,
 .site-sidebar .site-nav a[aria-current="page"],
-.site-sidebar .site-nav a.active {
+.site-sidebar .site-nav a.active,
+.site-sidebar .site-nav a.is-carousel-focus {
   color: #fff !important;
   border-left-color: var(--sidebar-contact);
   background: rgba(255, 255, 255, 0.065) !important;
   transform: none;
+}
+
+body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-focus):not([aria-current="page"]) {
+  color: rgba(255, 255, 255, 0.88) !important;
+  border-left-color: transparent;
+  background: transparent !important;
 }
 
 .site-sidebar .site-nav__icon {
