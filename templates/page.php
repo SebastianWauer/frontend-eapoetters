@@ -38,6 +38,7 @@ if (!function_exists('render_page_blocks')) {
                 'text'    => 'themes/default/blocks/text.php',
                 'hero'    => 'themes/default/blocks/hero.php',
                 'dual_hero' => 'themes/default/blocks/dual_hero.php',
+                'page_carousel' => 'themes/default/blocks/page_carousel.php',
                 'image'   => 'themes/default/blocks/image.php',
                 'columns' => 'themes/default/blocks/columns.php',
                 'cta'     => 'themes/default/blocks/cta.php',
