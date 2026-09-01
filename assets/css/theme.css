@@ -551,7 +551,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 .page-carousel__stage {
   position: relative;
   width: 100%;
-  height: clamp(18rem, 62vw, 24rem);
+  height: clamp(20rem, 68vw, 27rem);
   overflow: hidden;
   outline: none;
   touch-action: pan-y;
@@ -806,7 +806,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   }
 
   .page-carousel__stage {
-    height: clamp(19rem, 34vw, 25rem);
+    height: clamp(22rem, 38vw, 29rem);
   }
 
   .page-carousel__slide {
