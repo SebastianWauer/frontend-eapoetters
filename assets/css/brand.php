@@ -91,17 +91,37 @@ if ($baseUrl !== '') {
 // -------------------------------------------------------
 // Output CSS
 // -------------------------------------------------------
+$contrastColor = static function (string $hex): string {
+    $rgb = sscanf(ltrim($hex, '#'), '%02x%02x%02x');
+    if (!is_array($rgb) || count($rgb) !== 3) {
+        return '#ffffff';
+    }
+    $linear = static function (int $channel): float {
+        $value = $channel / 255;
+        return $value <= 0.03928
+            ? $value / 12.92
+            : (($value + 0.055) / 1.055) ** 2.4;
+    };
+    $luminance = 0.2126 * $linear((int)$rgb[0])
+        + 0.7152 * $linear((int)$rgb[1])
+        + 0.0722 * $linear((int)$rgb[2]);
+    return $luminance > 0.42 ? '#17181a' : '#ffffff';
+};
+$colorPrimaryContrast = $contrastColor($colorPrimary);
+
 header('Content-Type: text/css; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 header('Pragma: no-cache');
 ?>:root {
   /* DB-fed variables consumed by theme.css */
   --db-color-primary:   <?php echo $colorPrimary; ?>;
+  --db-color-primary-contrast: <?php echo $colorPrimaryContrast; ?>;
   --db-color-secondary: <?php echo $colorSecondary; ?>;
   --db-color-tertiary:  <?php echo $colorTertiary; ?>;
 
   /* Legacy compatibility variables */
   --color-primary:   var(--db-color-primary);
+  --color-primary-contrast: var(--db-color-primary-contrast);
   --color-secondary: var(--db-color-secondary);
   --color-tertiary:  var(--db-color-tertiary);
   --color-accent:    var(--db-color-tertiary);

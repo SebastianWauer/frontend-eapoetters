@@ -148,6 +148,12 @@ if (!function_exists('sidebarIconSvg')) {
     }
 }
 
+if (!function_exists('sidebarIconImageMarkup')) {
+    function sidebarIconImageMarkup(string $url): string {
+        return '<span class="site-nav__icon-image" aria-hidden="true"><img src="' . e($url) . '" alt=""></span>';
+    }
+}
+
 if (!function_exists('renderNavTree')) {
     function renderNavTree(array $tree, string $activeFaviconUrl = '', string $currentPath = '/', string $currentSlug = '', bool $highlightFirst = false): void {
         if (empty($tree)) {
@@ -188,7 +194,7 @@ if (!function_exists('renderNavTree')) {
             if ($iconUrl !== '' && preg_match('#^(https?://|/)#i', $iconUrl) !== 1) $iconUrl = '';
             if ($iconUrl === '') $iconUrl = $activeFaviconUrl;
             $iconMarkup = $iconUrl !== ''
-                ? '<img src="' . e($iconUrl) . '" alt="" aria-hidden="true">'
+                ? sidebarIconImageMarkup($iconUrl)
                 : sidebarIconSvg((string)$node['title']);
             echo '<span class="site-nav__icon">' . $iconMarkup . '</span>';
             echo '<span class="site-nav__label">' . e($node['title']) . '</span>';

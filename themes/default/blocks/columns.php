@@ -42,7 +42,7 @@ $serviceBlockId = 'service-columns-' . substr(hash('sha256', json_encode($block,
         <div class="block-columns__service-head">
           <span class="block-columns__service-icon" aria-hidden="true">
             <?php if ($col['image'] !== ''): ?>
-              <img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?>>
+              <span class="block-columns__service-icon-image"><img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?>></span>
             <?php else: ?>
               <span class="block-columns__service-icon-fallback"></span>
             <?php endif; ?>

@@ -79,7 +79,7 @@ $carouselId = 'page-carousel-' . $renderIndex . '-' . substr(sha1((string)json_e
           <span class="page-carousel__scrim" aria-hidden="true"></span>
           <span class="page-carousel__content">
             <span class="page-carousel__card-icon" aria-hidden="true">
-              <img src="<?= $e($item['icon_url']) ?>" alt="">
+              <span class="page-carousel__card-icon-image"><img src="<?= $e($item['icon_url']) ?>" alt=""></span>
             </span>
             <span class="page-carousel__copy">
               <strong><?= $e($item['title']) ?></strong>
