@@ -88,7 +88,10 @@ foreach ($blocksList as $blockIndex => $block):
     $type = (string)($block['type'] ?? '');
     render_page_blocks([$block], compact('contactFormStates', 'currentSlug', 'contactTurnstileSiteKey', 'publicSettings', 'client'));
 
-    if (!$headingRendered && in_array($type, ['hero', 'dual_hero'], true)) {
+    if (!$headingRendered && $type === 'dual_hero') {
+        // Der linke Bereich des Doppel-Heros enthält bereits die Seiten-H1.
+        $headingRendered = true;
+    } elseif (!$headingRendered && $type === 'hero') {
         $headingRendered = true;
         ?>
         <section class="page-headline-wrap">

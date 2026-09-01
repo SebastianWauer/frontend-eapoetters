@@ -49,25 +49,31 @@ foreach (['left', 'right'] as $side) {
           <?php if ($panel['foreground_url'] !== ''): ?>
             <img class="dual-hero__foreground" src="<?= $e($panel['foreground_url']) ?>" alt="">
           <?php endif; ?>
-          <?php if ($panel['topline'] !== ''): ?>
-            <div class="dual-hero__topline"><?= $e($panel['topline']) ?></div>
-          <?php endif; ?>
-          <?php if ($panel['headline'] !== ''): ?>
-            <h2><?= $e($panel['headline']) ?></h2>
-          <?php endif; ?>
-          <?php if ($panel['subtitle'] !== ''): ?>
-            <p><?= nl2br($e($panel['subtitle'])) ?></p>
-          <?php endif; ?>
-          <?php if ($hasActions): ?>
-            <div class="dual-hero__actions">
-              <?php if ($panel['button_text'] !== '' && $panel['button_url'] !== ''): ?>
-                <a class="hero-btn hero-btn--primary" href="<?= $e($panel['button_url']) ?>"><?= $e($panel['button_text']) ?></a>
+          <div class="dual-hero__copy">
+            <?php if ($panel['topline'] !== ''): ?>
+              <div class="dual-hero__topline"><?= $e($panel['topline']) ?></div>
+            <?php endif; ?>
+            <?php if ($panel['headline'] !== ''): ?>
+              <?php if ($panel['side'] === 'left'): ?>
+                <h1><?= $e($panel['headline']) ?></h1>
+              <?php else: ?>
+                <h2><?= $e($panel['headline']) ?></h2>
               <?php endif; ?>
-              <?php if ($panel['button_secondary_text'] !== '' && $panel['button_secondary_url'] !== ''): ?>
-                <a class="hero-btn hero-btn--secondary" href="<?= $e($panel['button_secondary_url']) ?>"><?= $e($panel['button_secondary_text']) ?></a>
-              <?php endif; ?>
-            </div>
-          <?php endif; ?>
+            <?php endif; ?>
+            <?php if ($panel['subtitle'] !== ''): ?>
+              <p><?= nl2br($e($panel['subtitle'])) ?></p>
+            <?php endif; ?>
+            <?php if ($hasActions): ?>
+              <div class="dual-hero__actions">
+                <?php if ($panel['button_text'] !== '' && $panel['button_url'] !== ''): ?>
+                  <a class="hero-btn hero-btn--primary" href="<?= $e($panel['button_url']) ?>"><?= $e($panel['button_text']) ?></a>
+                <?php endif; ?>
+                <?php if ($panel['button_secondary_text'] !== '' && $panel['button_secondary_url'] !== ''): ?>
+                  <a class="hero-btn hero-btn--secondary" href="<?= $e($panel['button_secondary_url']) ?>"><?= $e($panel['button_secondary_text']) ?></a>
+                <?php endif; ?>
+              </div>
+            <?php endif; ?>
+          </div>
         </div>
       </article>
     <?php endforeach; ?>
