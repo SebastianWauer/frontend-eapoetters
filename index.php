@@ -54,7 +54,7 @@ if (is_file($localLogger)) {
 $baseUrl  = (string)(getenv('CMS_API_URL')   ?: '');
 $token    = (string)(getenv('CMS_API_TOKEN') ?: '');
 $timeout  = (int)(getenv('CMS_TIMEOUT')      ?: 5);
-$cacheTtl = 0; // Live-Frontend: Seiteninhalte immer direkt aus dem CMS holen.
+$cacheTtl = max(0, (int)(getenv('CMS_CACHE_TTL') ?: 60));
 $resolveIp = (string)(getenv('CMS_RESOLVE_IP') ?: '');
 $frontendBaseUrl = (string)(getenv('FRONTEND_BASE_URL') ?: '');
 $cmsSitemapUrl   = (string)(getenv('CMS_SITEMAP_URL') ?: '');

@@ -58,7 +58,7 @@ try {
             'CMS_API_URL' => $cmsUrl . '/api.php/api/v1',
             'CMS_API_TOKEN' => $data['tokens']['api'] ?? '',
             'CMS_TIMEOUT' => '5',
-            'CMS_CACHE_TTL' => '300',
+            'CMS_CACHE_TTL' => '60',
             'FRONTEND_BASE_URL' => $data['urls']['frontend'] ?? '',
             'CMS_SITEMAP_URL' => $cmsUrl . '/sitemap.xml',
         ];
@@ -71,4 +71,3 @@ try {
     fwrite(STDERR, "Env-Konfiguration ungueltig: " . $e->getMessage() . "\n");
     exit(1);
 }
-

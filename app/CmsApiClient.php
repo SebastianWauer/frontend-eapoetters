@@ -207,30 +207,40 @@ class CmsApiClient
 
         // --- Read from cache ---
         $cachePath = $this->cachePath($url, $headers);
-        if ($cachePath !== null && is_file($cachePath)) {
-            $age = time() - (int)filemtime($cachePath);
-            if ($age < $this->cacheTtl) {
-                $raw = file_get_contents($cachePath);
-                if ($raw !== false) {
-                    $data = json_decode($raw, true);
-                    if (is_array($data)) {
-                        return $data;
-                    }
-                }
-            }
+        $cached = $this->readCache($cachePath, true);
+        if ($cached !== null) {
+            return $cached;
         }
 
-        [$status, $body] = $this->request($url, $headers);
+        try {
+            [$status, $body] = $this->request($url, $headers);
+        } catch (CmsApiException $e) {
+            $stale = $this->readCache($cachePath, false);
+            if ($stale !== null && $this->isTransientFailure($e)) {
+                return $stale;
+            }
+            throw $e;
+        }
 
         if ($status >= 400) {
             $decoded = json_decode($body, true);
             $apiErr  = is_array($decoded) ? (string)($decoded['error'] ?? 'http_error') : 'http_error';
-            throw new CmsApiException($status, $apiErr, $body);
+            $exception = new CmsApiException($status, $apiErr, $body);
+            $stale = $this->readCache($cachePath, false);
+            if ($stale !== null && $this->isTransientFailure($exception)) {
+                return $stale;
+            }
+            throw $exception;
         }
 
         $data = json_decode($body, true);
         if (!is_array($data)) {
-            throw new CmsApiException(0, 'invalid_json', $body);
+            $exception = new CmsApiException(0, 'invalid_json', $body);
+            $stale = $this->readCache($cachePath, false);
+            if ($stale !== null) {
+                return $stale;
+            }
+            throw $exception;
         }
 
         // --- Write to cache ---
@@ -307,7 +317,7 @@ class CmsApiClient
         $body = curl_exec($ch);
         $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $err  = curl_error($ch);
-        curl_close($ch);
+        unset($ch);
 
         if ($body === false || $err !== '') {
             throw new CmsApiException(0, 'network_error', $err);
@@ -381,6 +391,35 @@ class CmsApiClient
         }
         $key = sha1($url . "\n" . implode("\n", $headers));
         return $this->cacheDir . '/' . $key . '.json';
+    }
+
+    private function readCache(?string $path, bool $freshOnly): ?array
+    {
+        if ($path === null || !is_file($path)) {
+            return null;
+        }
+        if ($freshOnly) {
+            $age = time() - (int)filemtime($path);
+            if ($age >= $this->cacheTtl) {
+                return null;
+            }
+        }
+
+        $raw = @file_get_contents($path);
+        if ($raw === false) {
+            return null;
+        }
+        $data = json_decode($raw, true);
+        return is_array($data) ? $data : null;
+    }
+
+    private function isTransientFailure(CmsApiException $e): bool
+    {
+        return $e->statusCode === 0
+            || $e->statusCode === 408
+            || $e->statusCode === 429
+            || $e->statusCode >= 500
+            || in_array($e->apiError, ['network_error', 'invalid_json', 'rate_limited'], true);
     }
 
     private function writeCache(string $path, string $body): void
