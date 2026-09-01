@@ -381,6 +381,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 
 .hero-btn--secondary {
   border: 1px solid currentColor;
+  color: #fff;
   background: transparent;
 }
 
