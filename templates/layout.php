@@ -26,9 +26,9 @@
       :root {
         --site-favicon-url: url('<?= htmlspecialchars($faviconUrl !== '' ? $faviconUrl : $faviconFallbackUrl, ENT_QUOTES, 'UTF-8') ?>');
       }
-      /* Safety override: honor per-block hero overlay even with cached/legacy theme.css */
+      /* Safety override for cached/legacy theme.css; the value is owned by the frontend. */
       .block-hero[style*="background-image"]::before {
-        background: rgba(0, 0, 0, var(--hero-overlay-opacity, 0)) !important;
+        background: rgba(0, 0, 0, var(--hero-overlay-opacity, 0.5)) !important;
       }
     </style>
     <title><?php echo e($title ?? 'Seite'); ?></title>

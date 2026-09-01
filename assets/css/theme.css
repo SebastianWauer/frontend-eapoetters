@@ -294,11 +294,13 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 
 /* ── Hero ───────────────────────────────────────────── */
 .block-hero {
+  --hero-min-height: 55vh;
+  --hero-overlay-opacity: 0.5;
   position: relative;
   padding-block: 5rem;
   padding-inline: var(--container-pad);
   background-color: var(--color-primary);
-  min-height: var(--hero-min-height, 55vh);
+  min-height: var(--hero-min-height);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: 50% 50%;
@@ -311,7 +313,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, var(--hero-overlay-opacity, 0.5));
+  background: rgba(0, 0, 0, var(--hero-overlay-opacity));
   z-index: 0;
 }
 
@@ -330,6 +332,15 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   margin-bottom: 1rem;
 }
 
+.hero-topline {
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
 .block-hero p {
   font-size: clamp(1rem, 2vw, 1.25rem);
   opacity: 0.9;
@@ -338,8 +349,17 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   margin-bottom: 2rem;
 }
 
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
 .hero-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.75rem 2rem;
   background: var(--color-primary);
   color: #fff;
@@ -354,6 +374,15 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   transform: translateY(-1px);
   text-decoration: none;
   color: #fff;
+}
+
+.hero-btn--secondary {
+  border: 1px solid currentColor;
+  background: transparent;
+}
+
+.hero-btn--secondary:hover {
+  border-color: var(--color-secondary);
 }
 
 /* ── Text ───────────────────────────────────────────── */
