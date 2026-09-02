@@ -155,7 +155,7 @@ if (!function_exists('sidebarIconImageMarkup')) {
 }
 
 if (!function_exists('renderNavTree')) {
-    function renderNavTree(array $tree, string $activeFaviconUrl = '', string $currentPath = '/', string $currentSlug = '', bool $highlightFirst = false): void {
+    function renderNavTree(array $tree, string $activeFaviconUrl = '', string $currentPath = '/', string $currentSlug = ''): void {
         if (empty($tree)) {
             return;
         }
@@ -169,7 +169,7 @@ if (!function_exists('renderNavTree')) {
         };
         
         echo '<ul>';
-        foreach ($tree as $nodeIndex => $node) {
+        foreach ($tree as $node) {
             $nodePath = $normalize((string)($node['url'] ?? '/'));
             $slugNode = trim((string)($node['slug'] ?? ''), '/');
             $slugCurrent = trim($currentSlug, '/');
@@ -179,7 +179,7 @@ if (!function_exists('renderNavTree')) {
                 || ($slugNode !== '' && $slugCurrent !== '' && $slugNode === $slugCurrent);
             $selfActive = ($node['active_self'] ?? false) || $selfByPath;
             $anyActive = ($node['active_any'] ?? false) || $selfByPath;
-            $visualActive = $anyActive || ($highlightFirst && $nodeIndex === 0);
+            $visualActive = $anyActive;
 
             echo '<li>';
             echo '<a href="' . e($node['url']) . '"';
@@ -201,7 +201,7 @@ if (!function_exists('renderNavTree')) {
             echo '<span class="site-nav__chevron" aria-hidden="true">›</span></a>';
             
             if (!empty($node['children'])) {
-                renderNavTree($node['children'], $activeFaviconUrl, $currentPath, $currentSlug, false);
+                renderNavTree($node['children'], $activeFaviconUrl, $currentPath, $currentSlug);
             }
             
             echo '</li>';
@@ -230,25 +230,6 @@ foreach ($navItems as $item) {
 
 // Build tree, mark active states, and render navigation
 $tree = buildNavTree($navItems, $rootParent);
-$serviceOrder = [
-    'gravuren' => 10,
-    'druckverfahren' => 20,
-    'beschriftungen' => 30,
-    'stempel' => 40,
-    'sicherheitskennzeichnungen' => 50,
-    'pruefplaketten' => 60,
-    'betriebsausstattung' => 70,
-    'sonderanfertigung' => 80,
-    'sonderanfertigungen' => 80,
-];
-usort($tree, static function (array $left, array $right) use ($serviceOrder): int {
-    $leftKey = trim((string)parse_url((string)($left['url'] ?? ''), PHP_URL_PATH), '/');
-    $rightKey = trim((string)parse_url((string)($right['url'] ?? ''), PHP_URL_PATH), '/');
-    $leftOrder = $serviceOrder[$leftKey] ?? (1000 + (int)($left['nav_order'] ?? 0));
-    $rightOrder = $serviceOrder[$rightKey] ?? (1000 + (int)($right['nav_order'] ?? 0));
-
-    return $leftOrder <=> $rightOrder;
-});
 $tree = markNavActive($tree, $slug ?? 'home');
 $activeFaviconUrl = isset($faviconUrl) && is_string($faviconUrl) ? trim($faviconUrl) : '';
 $reqPathRaw = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
@@ -281,7 +262,6 @@ $openingLabel = match ($openingStatus) {
     default => '',
 };
 $isContactPage = $currentPath === '/kontakt' || trim(strtolower((string)($slug ?? '')), '/') === 'kontakt';
-$highlightFirstService = $currentPath === '/' || in_array(trim(strtolower((string)($slug ?? '')), '/'), ['home', 'start'], true);
 ?>
 <aside class="site-sidebar" aria-label="Seitennavigation">
     <div class="site-sidebar__top">
@@ -302,7 +282,7 @@ $highlightFirstService = $currentPath === '/' || in_array(trim(strtolower((strin
         <?php if (!empty($tree)): ?>
         <nav class="site-nav" aria-label="Hauptnavigation">
             <span class="site-nav__eyebrow">Leistungen</span>
-            <?php renderNavTree($tree, $activeFaviconUrl, $currentPath, (string)($slug ?? ''), $highlightFirstService); ?>
+            <?php renderNavTree($tree, $activeFaviconUrl, $currentPath, (string)($slug ?? '')); ?>
         </nav>
         <?php endif; ?>
 
