@@ -2,6 +2,10 @@ name: Datenschutzerklaerung einmalig aktualisieren
 
 on:
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/update-privacy.yml
 
 permissions:
   contents: read
