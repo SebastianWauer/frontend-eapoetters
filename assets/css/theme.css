@@ -3678,10 +3678,19 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
 
 /* ── Startseite als geschlossene Desktop-Komposition ── */
 @media (min-width: 920px) {
+  body.is-homepage-composition {
+    height: 100svh;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
   body.is-homepage-composition > main {
     display: grid;
-    min-height: calc(100svh - var(--site-footer-height));
-    grid-template-rows: minmax(14rem, 31fr) minmax(18rem, 43fr) minmax(11rem, 26fr);
+    height: max(calc(100svh - var(--site-footer-height)), 45rem);
+    min-height: 0;
+    flex: none;
+    grid-template-rows: minmax(0, 31fr) minmax(0, 43fr) minmax(0, 26fr);
   }
 
   body.is-homepage-composition .block-dual-hero,
@@ -3702,7 +3711,7 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
   }
 
   body.is-homepage-composition .dual-hero__panel--right .dual-hero__foreground {
-    max-height: min(72%, 17rem);
+    max-height: clamp(10rem, 26svh, 20rem);
   }
 
   body.is-homepage-composition .block-page-carousel {
@@ -3740,11 +3749,13 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
   }
 
   body.is-homepage-composition .block-columns--service h2 {
+    width: 100%;
     flex: none;
     margin-bottom: clamp(0.5rem, 1.1vh, 1rem);
   }
 
   body.is-homepage-composition .block-columns--service .block-columns__grid {
+    width: 100%;
     min-height: 0;
     height: auto;
     flex: 1;
@@ -3760,7 +3771,7 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
 
 @media (min-width: 920px) and (max-height: 780px) {
   body.is-homepage-composition > main {
-    grid-template-rows: minmax(13.5rem, 30fr) minmax(17.5rem, 45fr) minmax(10.5rem, 25fr);
+    grid-template-rows: minmax(0, 30fr) minmax(0, 45fr) minmax(0, 25fr);
   }
 
   body.is-homepage-composition .dual-hero__content h1,
