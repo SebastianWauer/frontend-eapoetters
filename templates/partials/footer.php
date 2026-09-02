@@ -29,3 +29,24 @@ $footerOwner = trim((string)($footerSettings['legal_owner'] ?? ''));
         <?php endif; ?>
     </div>
 </footer>
+<script>
+(function () {
+    var footer = document.querySelector('.site-footer');
+    if (!footer) {
+        return;
+    }
+
+    var updateFooterHeight = function () {
+        var height = Math.ceil(footer.getBoundingClientRect().height);
+        document.documentElement.style.setProperty('--site-footer-height', height + 'px');
+    };
+
+    updateFooterHeight();
+    window.addEventListener('load', updateFooterHeight, { once: true });
+    window.addEventListener('resize', updateFooterHeight, { passive: true });
+
+    if ('ResizeObserver' in window) {
+        new ResizeObserver(updateFooterHeight).observe(footer);
+    }
+}());
+</script>

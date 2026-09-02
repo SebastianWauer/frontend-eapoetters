@@ -63,7 +63,7 @@
     <meta property="og:image" content="<?= htmlspecialchars($ogImage, ENT_QUOTES, 'UTF-8') ?>">
     <?php endif; ?>
 </head>
-<body<?= $previewMainOnly ? '' : ' class="has-sidebar"' ?>>
+<body<?= $previewMainOnly ? '' : ' class="has-sidebar has-sticky-footer"' ?>>
     <?php
     $headerNavItems = array_values(array_filter($navItems ?? [], static function (array $item): bool {
         return (string)($item['area'] ?? 'header') !== 'footer';
