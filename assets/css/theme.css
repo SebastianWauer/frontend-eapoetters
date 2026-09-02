@@ -3690,7 +3690,7 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
     height: max(calc(100svh - var(--site-footer-height)), 45rem);
     min-height: 0;
     flex: none;
-    grid-template-rows: minmax(0, 31fr) minmax(0, 43fr) minmax(0, 26fr);
+    grid-template-rows: minmax(0, 28fr) minmax(0, 49fr) minmax(0, 23fr);
   }
 
   body.is-homepage-composition .block-dual-hero,
@@ -3711,7 +3711,7 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
   }
 
   body.is-homepage-composition .dual-hero__panel--right .dual-hero__foreground {
-    max-height: clamp(10rem, 26svh, 20rem);
+    max-height: clamp(9rem, 24svh, 19rem);
   }
 
   body.is-homepage-composition .block-page-carousel {
@@ -3771,7 +3771,7 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
 
 @media (min-width: 920px) and (max-height: 780px) {
   body.is-homepage-composition > main {
-    grid-template-rows: minmax(0, 30fr) minmax(0, 45fr) minmax(0, 25fr);
+    grid-template-rows: minmax(0, 28fr) minmax(0, 49fr) minmax(0, 23fr);
   }
 
   body.is-homepage-composition .dual-hero__content h1,
@@ -3788,6 +3788,10 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
     margin-top: 0.35rem;
     -webkit-line-clamp: 2;
     line-clamp: 2;
+  }
+
+  body.is-homepage-composition .block-columns--service .block-columns__col {
+    padding: 0.75rem;
   }
 }
 
