@@ -42,6 +42,7 @@ if (!function_exists('render_page_blocks')) {
                 'hero'    => 'themes/default/blocks/hero.php',
                 'dual_hero' => 'themes/default/blocks/dual_hero.php',
                 'page_carousel' => 'themes/default/blocks/page_carousel.php',
+                'catalog' => 'themes/default/blocks/catalog.php',
                 'image'   => 'themes/default/blocks/image.php',
                 'columns' => 'themes/default/blocks/columns.php',
                 'cta'     => 'themes/default/blocks/cta.php',
@@ -67,7 +68,7 @@ foreach ($blocksList as $candidateBlock) {
     if (!is_array($candidateBlock)) {
         continue;
     }
-    if (in_array((string)($candidateBlock['type'] ?? ''), ['hero', 'dual_hero'], true)) {
+    if (in_array((string)($candidateBlock['type'] ?? ''), ['hero', 'dual_hero', 'catalog'], true)) {
         $hasHero = true;
         break;
     }

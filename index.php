@@ -252,7 +252,10 @@ function absolutizeCmsMediaUrl(string $url, string $cmsBaseUrl): string
     }
 
     $path = (string)($parts['path'] ?? '');
-    if (!str_ends_with($path, '/media/file') && !str_ends_with($path, '/media/thumb')) {
+    if (!str_ends_with($path, '/media/file')
+        && !str_ends_with($path, '/media/thumb')
+        && !str_ends_with($path, '/media/catalog/page')
+        && !str_ends_with($path, '/media/catalog/manifest')) {
         return $url;
     }
 
@@ -272,6 +275,24 @@ function absolutizePageCarouselIcons(array $blocks, string $cmsBaseUrl): array
                 continue;
             }
             if ((string)$key === 'page_icon_url' && is_string($item)) {
+                $value[$key] = absolutizeCmsMediaUrl($item, $cmsBaseUrl);
+            }
+        }
+        return $value;
+    };
+    return $walk($blocks);
+}
+
+function absolutizeCatalogUrls(array $blocks, string $cmsBaseUrl): array
+{
+    $walk = static function ($value) use (&$walk, $cmsBaseUrl) {
+        if (!is_array($value)) return $value;
+        foreach ($value as $key => $item) {
+            if (is_array($item)) {
+                $value[$key] = $walk($item);
+                continue;
+            }
+            if (in_array((string)$key, ['pdf_url', 'page_url_template'], true) && is_string($item)) {
                 $value[$key] = absolutizeCmsMediaUrl($item, $cmsBaseUrl);
             }
         }
@@ -1157,6 +1178,7 @@ $title = $internalTitle . ' - ' . $siteName;
 $blocks = is_array($page['blocks'] ?? null) ? $page['blocks'] : [];
 $cmsBaseUrl = deriveCmsBaseUrlFromApiBase($baseUrl);
 $blocks = absolutizePageCarouselIcons($blocks, $cmsBaseUrl);
+$blocks = absolutizeCatalogUrls($blocks, $cmsBaseUrl);
 $blocks = enrichBlockFocusWithMedia($blocks, $client, $cmsBaseUrl);
 $blocks = enrichEventBlocksWithItems($blocks, $client, $cmsBaseUrl);
 $blocks = enrichNewsBlocksWithItems($blocks, $client, $cmsBaseUrl);
