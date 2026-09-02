@@ -2,6 +2,30 @@
    Theme – Vanilla CSS, Mobile-first, no frameworks
    ===================================================== */
 
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('../fonts/inter-latin-400-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/barlow-condensed-latin-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/barlow-condensed-latin-700.woff2') format('woff2');
+}
+
 /* ── Custom Properties ─────────────────────────────── */
 :root {
   --color-primary:      var(--db-color-primary, #2563eb);
