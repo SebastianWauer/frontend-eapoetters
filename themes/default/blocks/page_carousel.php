@@ -175,6 +175,18 @@ $carouselId = 'page-carousel-' . $renderIndex . '-' . substr(sha1((string)json_e
   };
   const restart = () => { show(current); start(); };
 
+  sidebarLinks.forEach((link) => {
+    const targetPath = normalizePath(link.getAttribute('href') || '');
+    const targetIndex = slides.findIndex((slide) => normalizePath(slide.getAttribute('href') || '') === targetPath);
+    if (targetIndex < 0) return;
+
+    link.addEventListener('mouseenter', () => {
+      if (current === targetIndex) return;
+      current = targetIndex;
+      restart();
+    });
+  });
+
   slides.forEach((slide, index) => {
     slide.addEventListener('click', (event) => {
       if (slide.dataset.pos === 'current') return;
