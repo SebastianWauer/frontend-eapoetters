@@ -13,6 +13,20 @@
     $contactFormStates = is_array($contactFormStates ?? null) ? $contactFormStates : [];
     $contactTurnstileSiteKey = (isset($contactTurnstileSiteKey) && is_string($contactTurnstileSiteKey)) ? trim($contactTurnstileSiteKey) : '';
     $publicSettings = is_array($publicSettings ?? null) ? $publicSettings : [];
+    $layoutSlug = trim((string)($slug ?? ''), '/');
+    $layoutBlockTypes = [];
+    foreach (is_array($blocks ?? null) ? $blocks : [] as $layoutBlock) {
+        if (is_array($layoutBlock)) {
+            $layoutBlockTypes[] = (string)($layoutBlock['type'] ?? '');
+        }
+    }
+    $isHomepageComposition = !$previewMainOnly
+        && in_array($layoutSlug, ['', 'start', 'home'], true)
+        && $layoutBlockTypes === ['dual_hero', 'page_carousel', 'columns'];
+    $bodyClasses = $previewMainOnly ? [] : ['has-sidebar', 'has-sticky-footer'];
+    if ($isHomepageComposition) {
+        $bodyClasses[] = 'is-homepage-composition';
+    }
     $themeCssHref = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/css/theme.css?v=' . (int)$themeVersion;
     $brandCssHref = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/css/brand.php?v=' . (int)$brandVersion;
     $faviconFallbackUrl = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/favicon.ico';
@@ -60,7 +74,7 @@
     <meta property="og:image" content="<?= htmlspecialchars($ogImage, ENT_QUOTES, 'UTF-8') ?>">
     <?php endif; ?>
 </head>
-<body<?= $previewMainOnly ? '' : ' class="has-sidebar has-sticky-footer"' ?>>
+<body<?= $bodyClasses !== [] ? ' class="' . htmlspecialchars(implode(' ', $bodyClasses), ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
     <?php
     $headerNavItems = array_values(array_filter($navItems ?? [], static function (array $item): bool {
         return (string)($item['area'] ?? 'header') !== 'footer';
