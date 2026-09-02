@@ -3677,20 +3677,11 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
 }
 
 /* ── Startseite als geschlossene Desktop-Komposition ── */
-@media (min-width: 920px) and (min-height: 640px) {
-  body.is-homepage-composition {
-    height: 100svh;
-    min-height: 0;
-    overflow: hidden;
-  }
-
+@media (min-width: 920px) {
   body.is-homepage-composition > main {
     display: grid;
-    height: calc(100svh - var(--site-footer-height));
-    min-height: 0;
-    flex: none;
-    grid-template-rows: minmax(0, 31fr) minmax(0, 43fr) minmax(0, 26fr);
-    overflow: hidden;
+    min-height: calc(100svh - var(--site-footer-height));
+    grid-template-rows: minmax(14rem, 31fr) minmax(18rem, 43fr) minmax(11rem, 26fr);
   }
 
   body.is-homepage-composition .block-dual-hero,
@@ -3767,9 +3758,9 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
   }
 }
 
-@media (min-width: 920px) and (min-height: 640px) and (max-height: 780px) {
+@media (min-width: 920px) and (max-height: 780px) {
   body.is-homepage-composition > main {
-    grid-template-rows: minmax(0, 30fr) minmax(0, 45fr) minmax(0, 25fr);
+    grid-template-rows: minmax(13.5rem, 30fr) minmax(17.5rem, 45fr) minmax(10.5rem, 25fr);
   }
 
   body.is-homepage-composition .dual-hero__content h1,
