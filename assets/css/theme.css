@@ -3107,7 +3107,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 
   .block-text--has-image .block-text__inner {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
+    align-items: center;
     gap: 2rem;
   }
 
