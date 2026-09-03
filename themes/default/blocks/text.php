@@ -36,7 +36,6 @@ if (preg_match('/<[^>]+>/', $textRaw) === 1) {
 }
 $rawImageUrl = trim((string)($payload['image_url'] ?? ''));
 $imageUrl = preg_match('#^(https?://|/)#i', $rawImageUrl) ? $rawImageUrl : '';
-$imageSize = strtolower(trim((string)($payload['image_size'] ?? 'm')));
 $imagePos = strtolower(trim((string)($payload['image_position'] ?? 'right')));
 $imageCaption = htmlspecialchars((string)($payload['image_caption'] ?? ''), ENT_QUOTES, 'UTF-8');
 $imageCredit = htmlspecialchars((string)($payload['image_credit'] ?? ''), ENT_QUOTES, 'UTF-8');
@@ -47,16 +46,13 @@ if (isset($payload['image_url_focus_x']) || isset($payload['image_url_focus_y'])
     $imageFocusStyle = ' style="object-position:' . $px . '% ' . $py . '%"';
 }
 
-if (!in_array($imageSize, ['s', 'm', 'l', 'xl', 'full'], true)) {
-    $imageSize = 'm';
-}
 if (!in_array($imagePos, ['left', 'right', 'top', 'bottom'], true)) {
     $imagePos = 'right';
 }
 $hasImage = $imageUrl !== '';
 ?>
 <section class="block block-text block-text--image-<?= htmlspecialchars($imagePos, ENT_QUOTES, 'UTF-8') ?> <?= $hasImage ? 'block-text--has-image' : 'block-text--no-image' ?>">
-  <div class="block-text__inner block-text__inner--<?= htmlspecialchars($imageSize, ENT_QUOTES, 'UTF-8') ?>">
+  <div class="block-text__inner">
     <div class="block-text__copy">
   <?php if ($title !== ''): ?>
     <h2><?= $title ?></h2>
