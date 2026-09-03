@@ -89,6 +89,7 @@ $requestedPage = max(1, min($pageCount > 0 ? $pageCount : 1, (int)($_GET['page']
   if (!root || root.dataset.initialized === '1') return;
   root.dataset.initialized = '1';
 
+  var backLink = root.querySelector('.block-catalog__back');
   var pageCount = Number(root.dataset.pageCount || 0);
   var template = String(root.dataset.pageUrlTemplate || '');
   var book = root.querySelector('.block-catalog__book');
@@ -103,6 +104,68 @@ $requestedPage = max(1, min($pageCount > 0 ? $pageCount : 1, (int)($_GET['page']
   var transitionLocked = false;
   var visible = true;
   var loaded = new Map();
+
+  function normalizedPath(path) {
+    path = String(path || '/').replace(/\/+$/, '');
+    return path === '' ? '/' : path;
+  }
+
+  function sourceLabel(path) {
+    if (normalizedPath(path) === '/') return 'Startseite';
+
+    var candidates = Array.from(document.querySelectorAll('.site-nav a[href], .site-footer__nav a[href], .site-sidebar__contact-badge[href]'));
+    var matchingLink = candidates.find(function (link) {
+      try {
+        return normalizedPath(new URL(link.href, window.location.href).pathname) === normalizedPath(path);
+      } catch (error) {
+        return false;
+      }
+    });
+    if (matchingLink) {
+      var navLabel = matchingLink.querySelector('.site-nav__label');
+      var text = String(navLabel ? navLabel.textContent : matchingLink.textContent).trim();
+      if (text !== '') return text;
+    }
+
+    var parts = normalizedPath(path).split('/').filter(Boolean);
+    var slug = parts.length ? parts[parts.length - 1] : 'Startseite';
+    try { slug = decodeURIComponent(slug); } catch (error) {}
+    slug = slug.replace(/[-_]+/g, ' ').trim();
+    return slug === '' ? 'Startseite' : slug.charAt(0).toUpperCase() + slug.slice(1);
+  }
+
+  function setupBackLink() {
+    if (!backLink) return;
+    var currentPath = normalizedPath(window.location.pathname);
+    var storageKey = 'catalog-return:' + currentPath;
+    var target = null;
+
+    if (document.referrer) {
+      try {
+        var referrer = new URL(document.referrer);
+        if (referrer.origin === window.location.origin && normalizedPath(referrer.pathname) !== currentPath) {
+          target = {
+            url: referrer.pathname + referrer.search + referrer.hash,
+            label: sourceLabel(referrer.pathname)
+          };
+          try { window.sessionStorage.setItem(storageKey, JSON.stringify(target)); } catch (error) {}
+        } else if (referrer.origin === window.location.origin) {
+          try { target = JSON.parse(window.sessionStorage.getItem(storageKey) || 'null'); } catch (error) {}
+        }
+      } catch (error) {}
+    }
+
+    if (!target || typeof target.url !== 'string' || target.url === '') return;
+    backLink.href = target.url;
+    var label = backLink.querySelector('span');
+    if (label) {
+      label.textContent = target.label === 'Startseite'
+        ? 'Zurück zur Startseite'
+        : 'Zurück zu ' + target.label;
+    }
+  }
+
+  setupBackLink();
 
   function pageUrl(page) {
     return template.replace('{page}', String(page));
