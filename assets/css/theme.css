@@ -2481,7 +2481,11 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 .block-columns__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
+}
+
+.block-columns + .block-columns {
+  padding-top: 0;
 }
 
 .block-columns__col h3 {
@@ -2517,6 +2521,18 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
 
+.block-columns__col--linked {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.block-columns__col--linked:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 70%, white);
+  outline-offset: 3px;
+}
+
 .block-columns__col:hover {
   transform: translateY(-2px);
   border-color: #d9dee8;
@@ -2544,6 +2560,24 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 
 .block-columns__col p {
   margin-bottom: 0.75rem;
+}
+
+.block-columns:not(.block-columns--service) .block-columns__col {
+  overflow: hidden;
+  padding: 0 0 0.875rem;
+}
+
+.block-columns:not(.block-columns--service) .block-columns__col > img {
+  display: block;
+  width: 100%;
+  margin: 0 0 0.75rem;
+  border-radius: 0;
+}
+
+.block-columns:not(.block-columns--service) .block-columns__col > h3,
+.block-columns:not(.block-columns--service) .block-columns__col > div {
+  width: auto;
+  margin-inline: 0.875rem;
 }
 
 /* Pötters service tiles: the CMS block titled "Unser Service" */

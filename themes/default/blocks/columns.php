@@ -10,6 +10,13 @@ for ($i = 1; $i <= $colCount; $i++) {
     $title = trim((string)($block["col_{$i}_title"] ?? ''));
     $image = trim((string)($block["col_{$i}_image_url"] ?? ''));
     $text  = trim((string)($block["col_{$i}_text"]  ?? ''));
+    $link  = trim((string)($block["col_{$i}_link_url"] ?? ''));
+    $isInternalLink = str_starts_with($link, '/') && !str_starts_with($link, '//');
+    $isAnchorLink = str_starts_with($link, '#');
+    $isExternalLink = preg_match('#^https?://#i', $link) === 1;
+    if ($link !== '' && !$isInternalLink && !$isAnchorLink && !$isExternalLink) {
+        $link = '';
+    }
     $focusStyle = '';
     $focusAttrs = '';
     if (isset($block["col_{$i}_image_url_focus_x"]) || isset($block["col_{$i}_image_url_focus_y"])) {
@@ -19,7 +26,7 @@ for ($i = 1; $i <= $colCount; $i++) {
         $focusAttrs = focus_data_attributes($block["col_{$i}_image_url_focus_x"] ?? null, $block["col_{$i}_image_url_focus_y"] ?? null);
     }
     if ($title !== '' || $image !== '' || $text !== '') {
-        $cols[] = ['title' => $title, 'image' => $image, 'focus_style' => $focusStyle, 'focus_attrs' => $focusAttrs, 'text' => $text];
+        $cols[] = ['title' => $title, 'image' => $image, 'focus_style' => $focusStyle, 'focus_attrs' => $focusAttrs, 'text' => $text, 'link' => $link];
     }
 }
 
@@ -36,7 +43,8 @@ $serviceBlockId = 'service-columns-' . substr(hash('sha256', json_encode($block,
   <div class="block-columns__grid">
   <?php foreach ($cols as $index => $col): ?>
     <?php if ($isServiceBlock): ?>
-      <article class="block-columns__col" data-service-card="<?= (int)$index ?>">
+      <?php $serviceTag = $col['link'] !== '' ? 'a' : 'article'; ?>
+      <<?= $serviceTag ?> class="block-columns__col<?= $col['link'] !== '' ? ' block-columns__col--linked' : '' ?>"<?= $col['link'] !== '' ? ' href="' . htmlspecialchars($col['link'], ENT_QUOTES, 'UTF-8') . '"' : '' ?> data-service-card="<?= (int)$index ?>">
         <span class="block-columns__screw is-top-left" aria-hidden="true"></span>
         <span class="block-columns__screw is-top-right" aria-hidden="true"></span>
         <span class="block-columns__screw is-bottom-left" aria-hidden="true"></span>
@@ -56,9 +64,10 @@ $serviceBlockId = 'service-columns-' . substr(hash('sha256', json_encode($block,
         <?php if ($col['text'] !== ''): ?>
           <div class="block-columns__service-text"><?= nl2br(htmlspecialchars($col['text'], ENT_QUOTES, 'UTF-8')) ?></div>
         <?php endif; ?>
-      </article>
+      </<?= $serviceTag ?>>
     <?php else: ?>
-      <div class="block-columns__col">
+      <?php $tileTag = $col['link'] !== '' ? 'a' : 'div'; ?>
+      <<?= $tileTag ?> class="block-columns__col<?= $col['link'] !== '' ? ' block-columns__col--linked' : '' ?>"<?= $col['link'] !== '' ? ' href="' . htmlspecialchars($col['link'], ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
         <?php if ($col['image'] !== ''): ?>
           <img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?><?= $col['focus_attrs'] ?>>
         <?php endif; ?>
@@ -68,7 +77,7 @@ $serviceBlockId = 'service-columns-' . substr(hash('sha256', json_encode($block,
         <?php if ($col['text'] !== ''): ?>
           <div><?= nl2br(htmlspecialchars($col['text'], ENT_QUOTES, 'UTF-8')) ?></div>
         <?php endif; ?>
-      </div>
+      </<?= $tileTag ?>>
     <?php endif; ?>
   <?php endforeach; ?>
   </div>
