@@ -911,7 +911,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 .block-text__media img {
   display: block;
   width: 100%;
-  height: clamp(18rem, 32vw, 30rem);
+  height: clamp(13rem, 24vw, 22rem);
   border-radius: var(--radius);
   object-fit: cover;
   object-position: 50% 50%;
@@ -3106,7 +3106,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   }
 
   .block-text--has-image .block-text__inner {
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 44%);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
     gap: 2rem;
   }
