@@ -24,7 +24,8 @@ function render(string $file, array $vars = []): void {
 }
 
 /**
- * Normalize focus values from either legacy -1..1 or percent-like ranges.
+ * Convert the CMS focus convention (-1..1) to percentages.
+ * Values outside that range are accepted as legacy percentages.
  */
 function focus_to_percent(mixed $raw, float $default = 50.0): float
 {
@@ -33,17 +34,34 @@ function focus_to_percent(mixed $raw, float $default = 50.0): float
     }
     $v = (float)$raw;
 
-    // Legacy normalized range.
-    if ($v < 0.0) {
+    if ($v >= -1.0 && $v <= 1.0) {
         $v = (($v + 1.0) / 2.0) * 100.0;
-    } elseif ($v <= 1.0) {
-        // Common normalized 0..1 range.
-        $v = $v * 100.0;
     }
 
     if ($v < 0.0) $v = 0.0;
     if ($v > 100.0) $v = 100.0;
     return $v;
+}
+
+/**
+ * Data attributes used by the frontend focal-point positioning script.
+ */
+function focus_data_attributes(mixed $xRaw, mixed $yRaw, ?string $backgroundUrl = null): string
+{
+    if (($xRaw === null || $xRaw === '') && ($yRaw === null || $yRaw === '')) {
+        return '';
+    }
+
+    $x = focus_to_percent($xRaw, 50.0);
+    $y = focus_to_percent($yRaw, 50.0);
+    $attrs = ' data-cms-focus-x="' . htmlspecialchars((string)$x, ENT_QUOTES, 'UTF-8') . '"'
+        . ' data-cms-focus-y="' . htmlspecialchars((string)$y, ENT_QUOTES, 'UTF-8') . '"';
+
+    if ($backgroundUrl !== null && $backgroundUrl !== '') {
+        $attrs .= ' data-cms-focus-background="' . htmlspecialchars($backgroundUrl, ENT_QUOTES, 'UTF-8') . '"';
+    }
+
+    return $attrs;
 }
 
 /**

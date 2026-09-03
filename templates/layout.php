@@ -7,6 +7,7 @@
     $client = $client ?? null; // nicht jeder Render-Pfad reicht ihn durch (z.B. Fehlerseiten)
     $brandVersion = @filemtime(__DIR__ . '/../assets/css/brand.php') ?: time();
     $themeVersion = @filemtime(__DIR__ . '/../assets/css/theme.css') ?: time();
+    $focusScriptVersion = @filemtime(__DIR__ . '/../assets/js/focal-point.js') ?: time();
     $assetBaseUrl = (isset($assetBaseUrl) && is_string($assetBaseUrl)) ? rtrim($assetBaseUrl, '/') : '';
     $faviconUrl = (isset($faviconUrl) && is_string($faviconUrl)) ? trim($faviconUrl) : '';
     $previewMainOnly = !empty($previewMainOnly);
@@ -30,6 +31,7 @@
     $themeCssHref = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/css/theme.css?v=' . (int)$themeVersion;
     $brandCssHref = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/css/brand.php?v=' . (int)$brandVersion;
     $faviconFallbackUrl = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/favicon.ico';
+    $focusScriptSrc = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/js/focal-point.js?v=' . (int)$focusScriptVersion;
     ?>
     <link rel="stylesheet" href="<?= htmlspecialchars($themeCssHref, ENT_QUOTES, 'UTF-8') ?>">
     <link rel="stylesheet" href="<?= htmlspecialchars($brandCssHref, ENT_QUOTES, 'UTF-8') ?>">
@@ -92,5 +94,6 @@
     </main>
     
     <?php if (!$previewMainOnly) { render('templates/partials/footer.php', compact('siteName', 'footerNavItems', 'publicSettings')); } ?>
+    <script src="<?= htmlspecialchars($focusScriptSrc, ENT_QUOTES, 'UTF-8') ?>" defer></script>
 </body>
 </html>

@@ -11,13 +11,15 @@ for ($i = 1; $i <= $colCount; $i++) {
     $image = trim((string)($block["col_{$i}_image_url"] ?? ''));
     $text  = trim((string)($block["col_{$i}_text"]  ?? ''));
     $focusStyle = '';
+    $focusAttrs = '';
     if (isset($block["col_{$i}_image_url_focus_x"]) || isset($block["col_{$i}_image_url_focus_y"])) {
         $px = focus_to_percent($block["col_{$i}_image_url_focus_x"] ?? null, 50.0);
         $py = focus_to_percent($block["col_{$i}_image_url_focus_y"] ?? null, 50.0);
         $focusStyle = ' style="object-position:' . $px . '% ' . $py . '%"';
+        $focusAttrs = focus_data_attributes($block["col_{$i}_image_url_focus_x"] ?? null, $block["col_{$i}_image_url_focus_y"] ?? null);
     }
     if ($title !== '' || $image !== '' || $text !== '') {
-        $cols[] = ['title' => $title, 'image' => $image, 'focus_style' => $focusStyle, 'text' => $text];
+        $cols[] = ['title' => $title, 'image' => $image, 'focus_style' => $focusStyle, 'focus_attrs' => $focusAttrs, 'text' => $text];
     }
 }
 
@@ -42,7 +44,7 @@ $serviceBlockId = 'service-columns-' . substr(hash('sha256', json_encode($block,
         <div class="block-columns__service-head">
           <span class="block-columns__service-icon" aria-hidden="true">
             <?php if ($col['image'] !== ''): ?>
-              <span class="block-columns__service-icon-image"><img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?>></span>
+              <span class="block-columns__service-icon-image"><img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?><?= $col['focus_attrs'] ?>></span>
             <?php else: ?>
               <span class="block-columns__service-icon-fallback"></span>
             <?php endif; ?>
@@ -58,7 +60,7 @@ $serviceBlockId = 'service-columns-' . substr(hash('sha256', json_encode($block,
     <?php else: ?>
       <div class="block-columns__col">
         <?php if ($col['image'] !== ''): ?>
-          <img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?>>
+          <img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?><?= $col['focus_attrs'] ?>>
         <?php endif; ?>
         <?php if ($col['title'] !== ''): ?>
           <h3><?= htmlspecialchars($col['title'], ENT_QUOTES, 'UTF-8') ?></h3>

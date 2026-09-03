@@ -13,7 +13,7 @@ $cols = htmlspecialchars((string)($block['cols'] ?? '3'), ENT_QUOTES, 'UTF-8');
     <?php foreach ($items as $item): ?>
       <?php if (!is_array($item)) continue; ?>
       <figure>
-        <img src="<?= htmlspecialchars((string)($item['url'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars((string)($item['alt'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+        <img src="<?= htmlspecialchars((string)($item['url'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars((string)($item['alt'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"<?= focus_data_attributes($item['url_focus_x'] ?? $item['focus_x'] ?? null, $item['url_focus_y'] ?? $item['focus_y'] ?? null) ?>>
         <?php if (!empty($item['caption'])): ?>
           <figcaption><?= htmlspecialchars((string)($item['caption'] ?? ''), ENT_QUOTES, 'UTF-8') ?></figcaption>
         <?php endif; ?>

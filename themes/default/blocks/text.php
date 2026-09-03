@@ -40,10 +40,12 @@ $imagePos = strtolower(trim((string)($payload['image_position'] ?? 'right')));
 $imageCaption = htmlspecialchars((string)($payload['image_caption'] ?? ''), ENT_QUOTES, 'UTF-8');
 $imageCredit = htmlspecialchars((string)($payload['image_credit'] ?? ''), ENT_QUOTES, 'UTF-8');
 $imageFocusStyle = '';
+$imageFocusAttrs = '';
 if (isset($payload['image_url_focus_x']) || isset($payload['image_url_focus_y'])) {
     $px = focus_to_percent($payload['image_url_focus_x'] ?? null, 50.0);
     $py = focus_to_percent($payload['image_url_focus_y'] ?? null, 50.0);
     $imageFocusStyle = ' style="object-position:' . $px . '% ' . $py . '%"';
+    $imageFocusAttrs = focus_data_attributes($payload['image_url_focus_x'] ?? null, $payload['image_url_focus_y'] ?? null);
 }
 
 if (!in_array($imagePos, ['left', 'right', 'top', 'bottom'], true)) {
@@ -68,7 +70,7 @@ $hasImage = $imageUrl !== '';
 
   <?php if ($imageUrl !== ''): ?>
     <figure class="block-text__media">
-      <img src="<?= htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8') ?>" alt="<?= $imageCaption ?>"<?= $imageFocusStyle ?>>
+      <img src="<?= htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8') ?>" alt="<?= $imageCaption ?>"<?= $imageFocusStyle ?><?= $imageFocusAttrs ?>>
       <?php if ($imageCaption !== '' || $imageCredit !== ''): ?>
         <figcaption>
           <?= $imageCaption ?>

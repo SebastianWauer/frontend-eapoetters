@@ -16,12 +16,18 @@ foreach (['left', 'right'] as $side) {
     $backgroundUrl = trim((string)($dualHero[$side . '_background_image_url'] ?? ''));
     $foregroundUrl = trim((string)($dualHero[$side . '_foreground_image_url'] ?? ''));
     $styleParts = [];
+    $focusAttrs = '';
     if ($backgroundUrl !== '') {
         $styleParts[] = 'background-image:url(' . $e($backgroundUrl) . ')';
         if (isset($dualHero[$side . '_background_image_url_focus_x']) || isset($dualHero[$side . '_background_image_url_focus_y'])) {
             $focusX = focus_to_percent($dualHero[$side . '_background_image_url_focus_x'] ?? null, 50.0);
             $focusY = focus_to_percent($dualHero[$side . '_background_image_url_focus_y'] ?? null, 50.0);
             $styleParts[] = 'background-position:' . $focusX . '% ' . $focusY . '%';
+            $focusAttrs = focus_data_attributes(
+                $dualHero[$side . '_background_image_url_focus_x'] ?? null,
+                $dualHero[$side . '_background_image_url_focus_y'] ?? null,
+                $backgroundUrl
+            );
         }
     }
 
@@ -37,6 +43,7 @@ foreach (['left', 'right'] as $side) {
         'button_secondary_text' => trim((string)($dualHero[$side . '_button_secondary_text'] ?? '')),
         'button_secondary_url' => trim((string)($dualHero[$side . '_button_secondary_url'] ?? '')),
         'style' => $styleParts !== [] ? ' style="' . implode(';', $styleParts) . '"' : '',
+        'focus_attrs' => $focusAttrs,
     ];
 }
 ?>
@@ -44,7 +51,7 @@ foreach (['left', 'right'] as $side) {
   <div class="dual-hero__grid">
     <?php foreach ($panels as $panel): ?>
       <?php $hasActions = ($panel['button_text'] !== '' && $panel['button_url'] !== '') || ($panel['button_secondary_text'] !== '' && $panel['button_secondary_url'] !== ''); ?>
-      <article class="dual-hero__panel dual-hero__panel--<?= $e($panel['side']) ?><?= $panel['background_url'] !== '' ? ' dual-hero__panel--has-background' : '' ?>"<?= $panel['style'] ?>>
+      <article class="dual-hero__panel dual-hero__panel--<?= $e($panel['side']) ?><?= $panel['background_url'] !== '' ? ' dual-hero__panel--has-background' : '' ?>"<?= $panel['style'] ?><?= $panel['focus_attrs'] ?>>
         <div class="dual-hero__content">
           <?php if ($panel['foreground_url'] !== ''): ?>
             <img class="dual-hero__foreground" src="<?= $e($panel['foreground_url']) ?>" alt="">

@@ -33,7 +33,7 @@ $showTeaser = ((string)($p['show_teaser'] ?? '1') !== '0');
             $dateLabel = $publishedAt !== '' ? date('d.m.Y', (int)strtotime($publishedAt)) : '';
           ?>
           <article class="block-events__item is-lead">
-            <?php if ($img !== ''): ?><img src="<?= htmlspecialchars($img, ENT_QUOTES, 'UTF-8') ?>" alt="" loading="lazy"><?php endif; ?>
+            <?php if ($img !== ''): ?><img src="<?= htmlspecialchars($img, ENT_QUOTES, 'UTF-8') ?>" alt="" loading="lazy"<?= focus_data_attributes($item['image_focus_x'] ?? $item['image_url_focus_x'] ?? null, $item['image_focus_y'] ?? $item['image_url_focus_y'] ?? null) ?>><?php endif; ?>
             <div class="block-events__body">
               <?php if ($cat !== ''): ?><div class="block-events__cat"><?= htmlspecialchars($cat, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
               <?php if ($dateLabel !== ''): ?><div class="block-events__past-label"><?= htmlspecialchars($dateLabel, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>

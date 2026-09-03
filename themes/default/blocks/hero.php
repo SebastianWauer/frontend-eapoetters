@@ -9,6 +9,7 @@ if (isset($block['payload']) && is_array($block['payload'])) {
     $hero = array_merge($hero, $block['payload']);
 }
 $bgStyle = '';
+$focusAttrs = '';
 $styleParts = [];
 if (!empty($hero['image_url'])) {
     $styleParts[] = 'background-image:url(' . $e((string)$hero['image_url']) . ')';
@@ -20,11 +21,16 @@ if (!empty($hero['image_url'])) {
         $px = focus_to_percent($hero['image_url_focus_x'] ?? null, 50.0);
         $py = focus_to_percent($hero['image_url_focus_y'] ?? null, 50.0);
         $styleParts[] = 'background-position:' . $px . '% ' . $py . '% !important';
+        $focusAttrs = focus_data_attributes(
+            $hero['image_url_focus_x'] ?? null,
+            $hero['image_url_focus_y'] ?? null,
+            (string)$hero['image_url']
+        );
     }
 }
 $bgStyle = ' style="' . implode(';', $styleParts) . '"';
 ?>
-<section class="block block-hero"<?= $bgStyle ?>>
+<section class="block block-hero"<?= $bgStyle ?><?= $focusAttrs ?>>
   <?php if (!empty($hero['topline'])): ?>
     <div class="hero-topline"><?= $e((string)$hero['topline']) ?></div>
   <?php endif; ?>

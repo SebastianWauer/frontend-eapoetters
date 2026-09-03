@@ -46,6 +46,7 @@ foreach (array_slice($rawItems, 0, 12) as $rawItem) {
         'image_url' => $imageUrl,
         'focus_x' => focus_to_percent($rawItem['image_url_focus_x'] ?? null, 50.0),
         'focus_y' => focus_to_percent($rawItem['image_url_focus_y'] ?? null, 50.0),
+        'focus_attrs' => focus_data_attributes($rawItem['image_url_focus_x'] ?? null, $rawItem['image_url_focus_y'] ?? null),
         'icon_url' => $iconUrl,
         'text' => $text,
     ];
@@ -72,7 +73,7 @@ $carouselId = 'page-carousel-' . $renderIndex . '-' . substr(sha1((string)json_e
         ?>
         <a class="page-carousel__slide" href="<?= $e($item['slug']) ?>" data-carousel-slide="<?= $index ?>" data-pos="<?= $position ?>" aria-label="<?= $e($item['title']) ?>">
           <?php if ($item['image_url'] !== ''): ?>
-            <img class="page-carousel__image" src="<?= $e($item['image_url']) ?>" alt="" loading="lazy" draggable="false" style="object-position:<?= $e((string)$item['focus_x']) ?>% <?= $e((string)$item['focus_y']) ?>%">
+            <img class="page-carousel__image" src="<?= $e($item['image_url']) ?>" alt="" loading="lazy" draggable="false" style="object-position:<?= $e((string)$item['focus_x']) ?>% <?= $e((string)$item['focus_y']) ?>%"<?= $item['focus_attrs'] ?>>
           <?php else: ?>
             <span class="page-carousel__image-placeholder" aria-hidden="true"></span>
           <?php endif; ?>
