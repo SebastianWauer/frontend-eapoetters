@@ -17,12 +17,14 @@ if ($downloadLabel === '') $downloadLabel = 'PDF herunterladen';
 if ($backLabel === '') $backLabel = 'Startseite';
 if ($backUrl === '') $backUrl = '/';
 $usable = $catalogReady && $pageCount > 0 && $pageUrlTemplate !== '';
+$requestedPage = max(1, min($pageCount > 0 ? $pageCount : 1, (int)($_GET['page'] ?? $_GET['seite'] ?? 1)));
 ?>
 <section
   class="block-catalog<?= $usable ? ' is-ready' : ' is-unavailable' ?>"
   id="<?= e($catalogId) ?>"
   data-page-count="<?= $pageCount ?>"
   data-page-url-template="<?= e($pageUrlTemplate) ?>"
+  data-initial-page="<?= $requestedPage ?>"
 >
   <header class="block-catalog__toolbar">
     <a class="block-catalog__back" href="<?= e($backUrl) ?>">
@@ -96,13 +98,29 @@ $usable = $catalogReady && $pageCount > 0 && $pageUrlTemplate !== '';
   var prevButtons = Array.from(root.querySelectorAll('.is-prev'));
   var nextButtons = Array.from(root.querySelectorAll('.is-next'));
   var mobileQuery = window.matchMedia('(max-width: 719px)');
-  var currentPage = 1;
+  var initialPage = Math.max(1, Math.min(pageCount, Number(root.dataset.initialPage || 1)));
+  var currentPage = normalizedStartPage(initialPage);
   var transitionLocked = false;
   var visible = true;
   var loaded = new Map();
 
   function pageUrl(page) {
     return template.replace('{page}', String(page));
+  }
+
+  function normalizedStartPage(page) {
+    page = Math.max(1, Math.min(pageCount, Number(page) || 1));
+    if (mobileQuery.matches || page === 1) return page;
+    return page % 2 === 0 ? page : page - 1;
+  }
+
+  function updatePageUrl(page) {
+    if (!window.history || typeof window.history.replaceState !== 'function') return;
+    var url = new URL(window.location.href);
+    if (page <= 1) url.searchParams.delete('page');
+    else url.searchParams.set('page', String(page));
+    url.searchParams.delete('seite');
+    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
   }
 
   function pagesFor(startPage) {
@@ -201,12 +219,16 @@ $usable = $catalogReady && $pageCount > 0 && $pageUrlTemplate !== '';
     if (nextPage < 1 || nextPage > pageCount) return;
     transitionLocked = true;
     currentPage = nextPage;
+    updatePageUrl(currentPage);
     renderPages(direction);
   }
 
   prevButtons.forEach(function (button) { button.addEventListener('click', function () { go('prev'); }); });
   nextButtons.forEach(function (button) { button.addEventListener('click', function () { go('next'); }); });
-  var handleViewportChange = function () { renderPages(''); };
+  var handleViewportChange = function () {
+    currentPage = normalizedStartPage(currentPage);
+    renderPages('');
+  };
   if (typeof mobileQuery.addEventListener === 'function') mobileQuery.addEventListener('change', handleViewportChange);
   else if (typeof mobileQuery.addListener === 'function') mobileQuery.addListener(handleViewportChange);
 

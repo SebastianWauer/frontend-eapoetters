@@ -2574,7 +2574,11 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   border-radius: 0;
 }
 
-.block-columns:not(.block-columns--service) .block-columns__col > h3,
+.block-columns:not(.block-columns--service) .block-columns__col > h3 {
+  width: calc(100% - 1.75rem);
+  margin-inline: 0.875rem;
+}
+
 .block-columns:not(.block-columns--service) .block-columns__col > div {
   width: auto;
   margin-inline: 0.875rem;
