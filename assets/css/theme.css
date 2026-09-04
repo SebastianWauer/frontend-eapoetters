@@ -3768,11 +3768,6 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
     padding-bottom: clamp(0.4rem, 0.8vh, 0.75rem);
   }
 
-  body.is-homepage-composition .page-carousel__header h2 {
-    max-width: none;
-    margin-inline: 0;
-  }
-
   body.is-homepage-composition .page-carousel__stage {
     min-height: 0;
     height: auto;
