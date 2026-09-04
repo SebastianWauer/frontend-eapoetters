@@ -11,6 +11,8 @@ for ($i = 1; $i <= $colCount; $i++) {
     $image = trim((string)($block["col_{$i}_image_url"] ?? ''));
     $text  = trim((string)($block["col_{$i}_text"]  ?? ''));
     $link  = trim((string)($block["col_{$i}_link_url"] ?? ''));
+    $buttonShow = (string)($block["col_{$i}_button_show"] ?? '') === '1';
+    $buttonText = trim((string)($block["col_{$i}_button_text"] ?? ''));
     $isInternalLink = str_starts_with($link, '/') && !str_starts_with($link, '//');
     $isAnchorLink = str_starts_with($link, '#');
     $isExternalLink = preg_match('#^https?://#i', $link) === 1;
@@ -26,7 +28,7 @@ for ($i = 1; $i <= $colCount; $i++) {
         $focusAttrs = focus_data_attributes($block["col_{$i}_image_url_focus_x"] ?? null, $block["col_{$i}_image_url_focus_y"] ?? null);
     }
     if ($title !== '' || $image !== '' || $text !== '') {
-        $cols[] = ['title' => $title, 'image' => $image, 'focus_style' => $focusStyle, 'focus_attrs' => $focusAttrs, 'text' => $text, 'link' => $link];
+        $cols[] = ['title' => $title, 'image' => $image, 'focus_style' => $focusStyle, 'focus_attrs' => $focusAttrs, 'text' => $text, 'link' => $link, 'button_show' => $buttonShow, 'button_text' => $buttonText];
     }
 }
 
@@ -67,17 +69,23 @@ $serviceBlockId = 'service-columns-' . substr(hash('sha256', json_encode($block,
       </<?= $serviceTag ?>>
     <?php else: ?>
       <?php $tileTag = $col['link'] !== '' ? 'a' : 'div'; ?>
-      <<?= $tileTag ?> class="block-columns__col<?= $col['link'] !== '' ? ' block-columns__col--linked' : '' ?>"<?= $col['link'] !== '' ? ' href="' . htmlspecialchars($col['link'], ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
-        <?php if ($col['image'] !== ''): ?>
-          <img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?><?= $col['focus_attrs'] ?>>
+      <?php $showButton = $col['button_show'] && $col['button_text'] !== '' && $col['link'] !== ''; ?>
+      <div class="block-columns__item">
+        <<?= $tileTag ?> class="block-columns__col<?= $col['link'] !== '' ? ' block-columns__col--linked' : '' ?>"<?= $col['link'] !== '' ? ' href="' . htmlspecialchars($col['link'], ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
+          <?php if ($col['image'] !== ''): ?>
+            <img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?><?= $col['focus_attrs'] ?>>
+          <?php endif; ?>
+          <?php if ($col['title'] !== ''): ?>
+            <h3><?= htmlspecialchars($col['title'], ENT_QUOTES, 'UTF-8') ?></h3>
+          <?php endif; ?>
+          <?php if ($col['text'] !== ''): ?>
+            <div><?= nl2br(htmlspecialchars($col['text'], ENT_QUOTES, 'UTF-8')) ?></div>
+          <?php endif; ?>
+        </<?= $tileTag ?>>
+        <?php if ($showButton): ?>
+          <a href="<?= htmlspecialchars($col['link'], ENT_QUOTES, 'UTF-8') ?>" class="cta-btn block-columns__button"><?= htmlspecialchars($col['button_text'], ENT_QUOTES, 'UTF-8') ?></a>
         <?php endif; ?>
-        <?php if ($col['title'] !== ''): ?>
-          <h3><?= htmlspecialchars($col['title'], ENT_QUOTES, 'UTF-8') ?></h3>
-        <?php endif; ?>
-        <?php if ($col['text'] !== ''): ?>
-          <div><?= nl2br(htmlspecialchars($col['text'], ENT_QUOTES, 'UTF-8')) ?></div>
-        <?php endif; ?>
-      </<?= $tileTag ?>>
+      </div>
     <?php endif; ?>
   <?php endforeach; ?>
   </div>
