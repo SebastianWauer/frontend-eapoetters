@@ -2547,9 +2547,23 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   flex-direction: column;
 }
 
+.block-columns__col--has-button {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
 .block-columns__button {
-  margin-top: 0.75rem;
-  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.block-columns__button-icon {
+  flex: 0 0 auto;
+  width: 1.1em;
+  height: 1.1em;
 }
 
 .block-columns__col img {

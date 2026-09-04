@@ -71,7 +71,7 @@ $serviceBlockId = 'service-columns-' . substr(hash('sha256', json_encode($block,
       <?php $tileTag = $col['link'] !== '' ? 'a' : 'div'; ?>
       <?php $showButton = $col['button_show'] && $col['button_text'] !== '' && $col['link'] !== ''; ?>
       <div class="block-columns__item">
-        <<?= $tileTag ?> class="block-columns__col<?= $col['link'] !== '' ? ' block-columns__col--linked' : '' ?>"<?= $col['link'] !== '' ? ' href="' . htmlspecialchars($col['link'], ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
+        <<?= $tileTag ?> class="block-columns__col<?= $col['link'] !== '' ? ' block-columns__col--linked' : '' ?><?= $showButton ? ' block-columns__col--has-button' : '' ?>"<?= $col['link'] !== '' ? ' href="' . htmlspecialchars($col['link'], ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
           <?php if ($col['image'] !== ''): ?>
             <img src="<?= htmlspecialchars($col['image'], ENT_QUOTES, 'UTF-8') ?>" alt=""<?= $col['focus_style'] ?><?= $col['focus_attrs'] ?>>
           <?php endif; ?>
@@ -83,7 +83,13 @@ $serviceBlockId = 'service-columns-' . substr(hash('sha256', json_encode($block,
           <?php endif; ?>
         </<?= $tileTag ?>>
         <?php if ($showButton): ?>
-          <a href="<?= htmlspecialchars($col['link'], ENT_QUOTES, 'UTF-8') ?>" class="cta-btn block-columns__button"><?= htmlspecialchars($col['button_text'], ENT_QUOTES, 'UTF-8') ?></a>
+          <a href="<?= htmlspecialchars($col['link'], ENT_QUOTES, 'UTF-8') ?>" class="cta-btn block-columns__button">
+            <svg class="block-columns__button-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path d="M2 4.5h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+              <path d="M22 4.5h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <?= htmlspecialchars($col['button_text'], ENT_QUOTES, 'UTF-8') ?>
+          </a>
         <?php endif; ?>
       </div>
     <?php endif; ?>
