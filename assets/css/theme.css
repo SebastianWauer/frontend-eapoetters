@@ -82,11 +82,11 @@ body {
 .site-background-decor {
   position: fixed;
   z-index: 3;
-  top: clamp(4.75rem, 10vh, 7.5rem);
-  right: clamp(0.75rem, 2.5vw, 2.5rem);
+  top: clamp(0.75rem, 2.5vh, 1.5rem);
+  right: clamp(0.35rem, 1vw, 1rem);
   width: clamp(9rem, 16vw, 15rem);
   height: auto;
-  opacity: 0.16;
+  opacity: 0.28;
   pointer-events: none;
   user-select: none;
 }
