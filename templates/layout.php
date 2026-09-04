@@ -11,12 +11,13 @@
     $assetBaseUrl = (isset($assetBaseUrl) && is_string($assetBaseUrl)) ? rtrim($assetBaseUrl, '/') : '';
     $faviconUrl = (isset($faviconUrl) && is_string($faviconUrl)) ? trim($faviconUrl) : '';
     $previewMainOnly = !empty($previewMainOnly);
-    $contactFormStates = is_array($contactFormStates ?? null) ? $contactFormStates : [];
+    $contactFormStates = isset($contactFormStates) && is_array($contactFormStates) ? $contactFormStates : [];
     $contactTurnstileSiteKey = (isset($contactTurnstileSiteKey) && is_string($contactTurnstileSiteKey)) ? trim($contactTurnstileSiteKey) : '';
-    $publicSettings = is_array($publicSettings ?? null) ? $publicSettings : [];
+    $publicSettings = isset($publicSettings) && is_array($publicSettings) ? $publicSettings : [];
     $layoutSlug = trim((string)($slug ?? ''), '/');
     $layoutBlockTypes = [];
-    foreach (is_array($blocks ?? null) ? $blocks : [] as $layoutBlock) {
+    $layoutBlocks = isset($blocks) && is_array($blocks) ? $blocks : [];
+    foreach ($layoutBlocks as $layoutBlock) {
         if (is_array($layoutBlock)) {
             $layoutBlockTypes[] = (string)($layoutBlock['type'] ?? '');
         }
@@ -55,7 +56,7 @@
     </style>
     <title><?php echo e($title ?? 'Seite'); ?></title>
     <?php
-    $seo = is_array($seo ?? null) ? $seo : [];
+    $seo = isset($seo) && is_array($seo) ? $seo : [];
     $metaDesc   = (string)($seo['description'] ?? $seo['meta_description'] ?? '');
     $robots     = (string)($seo['robots'] ?? '');
     $canonical  = (string)($seo['canonical_url'] ?? '');
