@@ -571,13 +571,12 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 }
 
 .page-carousel__header {
-  display: flex;
-  align-items: baseline;
-  padding: 0 max(var(--container-pad), calc((100vw - var(--container-max)) / 2)) 0.75rem;
+  padding: 0 var(--container-pad) 0.75rem;
 }
 
 .page-carousel__header h2 {
-  margin: 0;
+  max-width: var(--container-max);
+  margin: 0 auto;
   color: #17181a;
   line-height: 1.25;
 }
@@ -3769,6 +3768,11 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
     padding-bottom: clamp(0.4rem, 0.8vh, 0.75rem);
   }
 
+  body.is-homepage-composition .page-carousel__header h2 {
+    max-width: none;
+    margin-inline: 0;
+  }
+
   body.is-homepage-composition .page-carousel__stage {
     min-height: 0;
     height: auto;
@@ -3836,6 +3840,10 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
 
   body.is-homepage-composition .block-columns--service h2 {
     margin-bottom: 0.3rem;
+    font-size: 1.15rem;
+  }
+
+  body.is-homepage-composition .page-carousel__header h2 {
     font-size: 1.15rem;
   }
 
