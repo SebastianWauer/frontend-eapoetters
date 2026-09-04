@@ -51,8 +51,8 @@
   --container-max: 1080px;
   --container-pad: 1rem;
 
-  --space-block:   1.5rem;
-  --space-block-sm: 1.5rem;
+  --space-block:   1.25rem;
+  --space-block-sm: 1.25rem;
   --site-footer-height: 2.875rem;
 }
 
@@ -560,7 +560,6 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 /* ── Seiten-Karussell ──────────────────────────────── */
 .block-page-carousel {
   padding: 0.875rem 0 1rem;
-  border-bottom: 1px solid rgba(195, 199, 205, 0.7);
   overflow: hidden;
   background: var(--color-bg);
 }
@@ -574,13 +573,12 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 .page-carousel__header {
   display: flex;
   align-items: baseline;
-  padding: 0 var(--container-pad) 0.75rem;
+  padding: 0 max(var(--container-pad), calc((100vw - var(--container-max)) / 2)) 0.75rem;
 }
 
 .page-carousel__header h2 {
   margin: 0;
   color: #17181a;
-  font-size: 1.25rem;
   line-height: 1.25;
 }
 
@@ -850,10 +848,6 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 @media (min-width: 768px) {
   .block-page-carousel {
     padding-block: 0.75rem 0.875rem;
-  }
-
-  .page-carousel__header h2 {
-    font-size: 1.125rem;
   }
 
   .page-carousel__stage {
@@ -2621,7 +2615,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border-block: 1px solid rgba(148, 163, 184, 0.42);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.42);
   background: transparent;
 }
 
@@ -3016,7 +3010,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 
   :root {
     --container-pad: 2rem;
-    --space-block: 2.5rem;
+    --space-block: 1.75rem;
   }
 
   .block-dual-hero {
