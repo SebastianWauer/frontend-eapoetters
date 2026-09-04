@@ -32,6 +32,12 @@
     $brandCssHref = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/css/brand.php?v=' . (int)$brandVersion;
     $faviconFallbackUrl = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/favicon.ico';
     $focusScriptSrc = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/js/focal-point.js?v=' . (int)$focusScriptVersion;
+    $decorAssetPath = __DIR__ . '/../assets/img/gears.svg';
+    $decorAssetUrl = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/img/gears.svg';
+    $decorAssetVersion = is_file($decorAssetPath) ? (int)filemtime($decorAssetPath) : 0;
+    if ($decorAssetVersion > 0) {
+        $decorAssetUrl .= '?v=' . $decorAssetVersion;
+    }
     ?>
     <link rel="stylesheet" href="<?= htmlspecialchars($themeCssHref, ENT_QUOTES, 'UTF-8') ?>">
     <link rel="stylesheet" href="<?= htmlspecialchars($brandCssHref, ENT_QUOTES, 'UTF-8') ?>">
@@ -77,6 +83,9 @@
     <?php endif; ?>
 </head>
 <body<?= $bodyClasses !== [] ? ' class="' . htmlspecialchars(implode(' ', $bodyClasses), ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
+    <?php if (!$previewMainOnly && $decorAssetVersion > 0): ?>
+    <img class="site-background-decor" src="<?= htmlspecialchars($decorAssetUrl, ENT_QUOTES, 'UTF-8') ?>" alt="" aria-hidden="true">
+    <?php endif; ?>
     <?php
     $headerNavItems = array_values(array_filter($navItems ?? [], static function (array $item): bool {
         return (string)($item['area'] ?? 'header') !== 'footer';

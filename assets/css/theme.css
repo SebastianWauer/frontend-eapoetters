@@ -79,6 +79,25 @@ body {
   flex-direction: column;
 }
 
+.site-background-decor {
+  position: fixed;
+  z-index: 1;
+  top: clamp(4.75rem, 10vh, 7.5rem);
+  right: clamp(0.75rem, 2.5vw, 2.5rem);
+  width: clamp(9rem, 16vw, 15rem);
+  height: auto;
+  opacity: 0.13;
+  pointer-events: none;
+  user-select: none;
+}
+
+header,
+main,
+.site-footer {
+  position: relative;
+  z-index: 2;
+}
+
 body.has-sticky-footer {
   padding-bottom: var(--site-footer-height);
 }
