@@ -54,7 +54,13 @@ foreach (['left', 'right'] as $side) {
       <article class="dual-hero__panel dual-hero__panel--<?= $e($panel['side']) ?><?= $panel['background_url'] !== '' ? ' dual-hero__panel--has-background' : '' ?>"<?= $panel['style'] ?><?= $panel['focus_attrs'] ?>>
         <div class="dual-hero__content">
           <?php if ($panel['foreground_url'] !== ''): ?>
-            <img class="dual-hero__foreground" src="<?= $e($panel['foreground_url']) ?>" alt="">
+            <?php if ($panel['button_url'] !== ''): ?>
+              <a class="dual-hero__foreground-link" href="<?= $e($panel['button_url']) ?>" aria-label="<?= $e($panel['button_text'] !== '' ? $panel['button_text'] : $panel['headline']) ?>">
+                <img class="dual-hero__foreground" src="<?= $e($panel['foreground_url']) ?>" alt="">
+              </a>
+            <?php else: ?>
+              <img class="dual-hero__foreground" src="<?= $e($panel['foreground_url']) ?>" alt="">
+            <?php endif; ?>
           <?php endif; ?>
           <div class="dual-hero__copy">
             <?php if ($panel['topline'] !== ''): ?>
