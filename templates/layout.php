@@ -32,8 +32,8 @@
     $brandCssHref = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/css/brand.php?v=' . (int)$brandVersion;
     $faviconFallbackUrl = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/favicon.ico';
     $focusScriptSrc = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/js/focal-point.js?v=' . (int)$focusScriptVersion;
-    $decorAssetPath = __DIR__ . '/../assets/img/gears.svg';
-    $decorAssetUrl = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/img/gears.svg';
+    $decorAssetPath = __DIR__ . '/../assets/img/gears.png';
+    $decorAssetUrl = ($assetBaseUrl !== '' ? $assetBaseUrl : '') . '/assets/img/gears.png';
     $decorAssetVersion = is_file($decorAssetPath) ? (int)filemtime($decorAssetPath) : 0;
     if ($decorAssetVersion > 0) {
         $decorAssetUrl .= '?v=' . $decorAssetVersion;
