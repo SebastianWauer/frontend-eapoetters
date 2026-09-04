@@ -81,7 +81,7 @@ body {
 
 .site-background-decor {
   position: fixed;
-  z-index: 3;
+  z-index: 1;
   top: clamp(0.75rem, 2.5vh, 1.5rem);
   right: clamp(0.35rem, 1vw, 1rem);
   width: clamp(9rem, 16vw, 15rem);
@@ -92,10 +92,18 @@ body {
 }
 
 header,
-main,
 .site-footer {
   position: relative;
   z-index: 2;
+}
+
+main > .block {
+  position: relative;
+  z-index: 2;
+}
+
+.is-homepage-composition main > .block-dual-hero {
+  z-index: 0;
 }
 
 body.has-sticky-footer {
@@ -473,7 +481,6 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
   background-repeat: no-repeat;
   background-size: cover;
   color: #fff;
-  isolation: isolate;
 }
 
 .dual-hero__panel--right {
@@ -503,7 +510,7 @@ nav a[aria-current="page"] .site-nav__active-icon-wrap {
 
 .dual-hero__content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   width: min(100%, 36rem);
   flex-direction: column;
