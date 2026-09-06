@@ -29,6 +29,23 @@ nicht exakt zur Kundenzuordnung passen. Danach rsync auf IONOS, `.env` wird aus 
 Verwaltung gerendert (verwaltete Keys überschrieben, eigene Zusatzwerte bleiben erhalten),
 zum Schluss Health-Check von CMS und Frontend.
 
+### Die Auslieferung läuft über eine Positivliste
+
+Der erste rsync in [deploy.yml](.github/workflows/deploy.yml) überträgt **nur, was
+namentlich eingetragen ist** — aktuell `index.php`, `.htaccess`, `favicon.ico` sowie
+`app/`, `templates/`, `themes/`, `assets/`. Alles andere bleibt per Default im Repo.
+
+**Eine neue Datei im Repo-Root muss dort eingetragen werden, sonst fehlt sie kommentarlos
+auf dem Server.** Das ist der bewusste Preis dafür, dass Doku, `frontend.json`,
+`.env.example` und alles künftig Hinzukommende nicht mehr versehentlich auf einer
+Kundendomain landen — vorher war es eine Negativliste, durch die genau das zweimal
+durchgerutscht ist.
+
+Ein Pflichtdateien-Check hinter dem rsync bricht den Rollout ab, wenn die Positivliste
+unvollständig ist. Der zweite rsync läuft mit `--delete`; ohne diesen Check würde ein
+leeres Stage-Verzeichnis das Kundenfrontend löschen. `.env` und `storage/` sind dort
+eigens von `--delete` ausgenommen und daher nicht gefährdet.
+
 ## Request-Fluss
 
 Alles landet über [.htaccess](.htaccess) in [index.php](index.php). Reihenfolge dort:
@@ -127,6 +144,33 @@ per `openssl_seal` gegen einen Public Key verschlüsselt; fehlt der Key, bricht 
 ab, solange `CONTACT_FORM_ENCRYPTION_REQUIRED` nicht ausdrücklich abgeschaltet ist.
 
 Welche Felder Pflicht sind, entscheidet das versteckte `_cf_fields` aus dem Block.
+
+## Offene Punkte
+
+### Personenbezogene Daten im Document Root
+
+`storage/contact_rate_limit.json` speichert die **IP-Adressen** der Formularabsender, und
+`storage/` liegt innerhalb des Document Roots — das Frontend-Verzeichnis *ist* der Webroot.
+
+Der Zugriffsschutz besteht aus der Rewrite-Sperre auf `^(app|templates|themes|storage)`
+in [.htaccess](.htaccess) und, seit dem Rollout-Härtungsschritt, einer `Require all denied`
+-`.htaccess`, die der Workflow in `storage/` ablegt. Beides ist wirksam, aber beides sind
+Zugriffsregeln auf einem öffentlich erreichbaren Pfad.
+
+**TODO: ungeklärt** — richtig wäre `storage/` außerhalb des Document Roots. Ob der
+IONOS-Tarif einen Pfad oberhalb des Webroots hergibt und wie groß der Eingriff in
+`deploy.yml` und die Pfadauflösung in `index.php` / `FileLogger` ausfällt, ist nicht
+geprüft. Bewusst nicht angefasst.
+
+### favicon.ico ist ein Platzhalter
+
+[templates/layout.php](templates/layout.php) verweist als Fallback auf `/favicon.ico`;
+bis dahin gab es die Datei nicht und der Request lief in eine 404-HTML-Seite. Die jetzige
+`favicon.ico` ist ein **neutrales abgerundetes Quadrat** in `--color-dark`, ohne Monogramm.
+
+**TODO: ungeklärt** — die echte Bildmarke von EA Poetters ist im Repo nirgends belegt und
+wurde deshalb nicht erfunden. Vorrang hat ohnehin das CMS: Ist dort ein Favicon gesetzt,
+gewinnt `$faviconUrl` und die `.ico` kommt nie zum Zug.
 
 ## Umgebungsvariablen
 

@@ -159,12 +159,35 @@ jobs:
           STAGE=$(mktemp -d)
           trap 'rm -rf -- "$STAGE"' EXIT
 
+          # Positivliste: uebertragen wird ausschliesslich, was zur Laufzeit
+          # gebraucht wird. Alles andere - Doku, .env.example, frontend.json,
+          # Git-Metadaten, kuenftige Neuzugaenge - bleibt per Default hier.
+          # WICHTIG: Eine neue Datei im Repo-Root muss hier eingetragen werden,
+          # sonst fehlt sie kommentarlos auf dem Server.
           rsync --archive \
-            --exclude=.git/ --exclude=.github/ --exclude=.env --exclude=.claude/ \
-            --exclude=storage/ --exclude=vendor/ --exclude=node_modules/ \
-            --exclude=secrets/ --exclude=keys/ --exclude=*.zip \
-            --exclude=CLAUDE.md --exclude=DESIGN.md --exclude=AGENTS.md \
+            --include=/index.php \
+            --include=/.htaccess \
+            --include=/favicon.ico \
+            --include=/app/*** \
+            --include=/templates/*** \
+            --include=/themes/*** \
+            --include=/assets/*** \
+            --exclude=* \
             ./ "$STAGE/"
+
+          # Schutz vor einer fehlerhaften Positivliste: der zweite rsync laeuft
+          # mit --delete, ein leeres oder unvollstaendiges STAGE wuerde das
+          # Kundenfrontend loeschen.
+          for pflicht in index.php .htaccess app templates themes assets; do
+            if [ ! -e "$STAGE/$pflicht" ]; then
+              echo "::error::Positivliste unvollstaendig, '$pflicht' fehlt im Stage. Rollout abgebrochen."
+              exit 1
+            fi
+          done
+          if [ ! -s "$STAGE/index.php" ]; then
+            echo "::error::index.php im Stage ist leer. Rollout abgebrochen."
+            exit 1
+          fi
 
           EXTRA_EXCLUDE=()
           if [ "$CMS_EMBEDDED" = "true" ]; then
@@ -235,6 +258,18 @@ jobs:
 
           $SSH_CMD "$ziel" "cat > '$FRONTEND_PATH/.env.new' && chmod 600 '$FRONTEND_PATH/.env.new' && mv '$FRONTEND_PATH/.env.new' '$FRONTEND_PATH/.env'" < /tmp/frontend-merged.env
           $SSH_CMD "$SSH_USER@$SSH_HOST" "mkdir -p '$FRONTEND_PATH/storage' && chmod 755 '$FRONTEND_PATH/storage'"
+          # storage/ liegt im Document Root und wird nicht mit uebertragen,
+          # bekommt seinen zweiten Riegel deshalb hier.
+          $SSH_CMD "$SSH_USER@$SSH_HOST" "cat > '$FRONTEND_PATH/storage/.htaccess' && chmod 644 '$FRONTEND_PATH/storage/.htaccess'" <<'STORAGE_HTACCESS'
+          # Zweiter Riegel: greift auch ohne mod_rewrite.
+          <IfModule mod_authz_core.c>
+            Require all denied
+          </IfModule>
+          <IfModule !mod_authz_core.c>
+            Order allow,deny
+            Deny from all
+          </IfModule>
+          STORAGE_HTACCESS
           echo "Frontend-.env aus der Verwaltung synchronisiert; eigene Zusatzwerte wurden erhalten."
 
       - name: CMS und Frontend pruefen

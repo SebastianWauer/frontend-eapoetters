@@ -1,0 +1,17 @@
+# Zweiter Riegel fuer dieses Verzeichnis.
+#
+# Die Sperren im Root-.htaccess stehen in <IfModule mod_rewrite.c>. Faellt
+# mod_rewrite aus, waere der PHP-Quelltext hier offen. <Directory> ist in
+# .htaccess nicht erlaubt, deshalb liegt die Sperre als eigene Datei im
+# Verzeichnis - sie gilt unabhaengig von mod_rewrite.
+#
+# Betrifft nur HTTP. PHP-includes aus index.php laufen ueber das Dateisystem
+# und sind davon nicht beruehrt.
+
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

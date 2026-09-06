@@ -14,7 +14,8 @@ Options -Indexes
   RewriteEngine On
 
   # --- Sperren -----------------------------------------------------------
-  RewriteRule (^|/)\.env(\.|$)                     - [F,L]
+  # Praefix-Match, damit auch .envbackup / .envold greifen, nicht nur .env.*
+  RewriteRule (^|/)\.env                           - [F,L]
   RewriteRule ^(app|templates|themes|storage)(/|$) - [F,L]
   RewriteRule (^|/)\.(git|ht)                      - [F,L]
 
@@ -48,6 +49,10 @@ Options -Indexes
 </IfModule>
 
 # Zweiter Riegel, falls mod_rewrite einmal fehlt.
+#
+# Deckt nur .env* ab - <Directory> ist in .htaccess nicht erlaubt, die Sperre
+# fuer app/, templates/ und themes/ liegt deshalb als eigene .htaccess in den
+# jeweiligen Verzeichnissen. storage/ bekommt seine beim Rollout (deploy.yml).
 <FilesMatch "^\.env">
   <IfModule mod_authz_core.c>
     Require all denied
