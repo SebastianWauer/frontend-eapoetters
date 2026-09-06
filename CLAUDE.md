@@ -50,11 +50,11 @@ Es gibt keinen Testlauf. Änderungen werden gegen ein laufendes CMS im Browser g
 ## Verworfenes
 
 - **Blöcke flach unter `templates/blocks/`** wurde versucht und zugunsten der
-  Theme-Struktur `themes/default/blocks/` verworfen. Übrig sind
-  [templates/blocks/hero.php](templates/blocks/hero.php) und
-  [templates/blocks/text.php](templates/blocks/text.php) — von nichts referenziert,
-  bewusst nicht gelöscht. Aus dem Verzeichnis ist nur `unknown.php` noch aktiv.
-  **TODO: ungeklärt** — warum gewechselt wurde, ist nicht erfasst.
+  Theme-Struktur `themes/default/blocks/` verworfen. Die Restdateien `hero.php` und
+  `text.php` lagen dort noch, waren aber auf keinem Weg mehr erreichbar — auch nicht
+  über den dynamischen Blockpfad des CMS, der fest auf `themes/default/blocks/` zeigt —
+  und sind gelöscht. Aktiv ist aus dem Verzeichnis nur noch `unknown.php` als
+  match-Default. **TODO: ungeklärt** — warum gewechselt wurde, ist nicht erfasst.
 
 ## Ein Blocktyp berührt fünf Repositories
 

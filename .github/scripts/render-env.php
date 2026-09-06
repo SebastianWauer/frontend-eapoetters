@@ -32,6 +32,12 @@ try {
         return $key . '="' . $escaped . '"';
     };
 
+    // TODO: ungeklaert - der 'cms'-Zweig wird aus diesem Repo nie erreicht.
+    // deploy.yml ruft das Skript ausschliesslich mit 'frontend' auf (Schritt
+    // "Frontend-.env aus der Verwaltung synchronisieren"). Der Zweig gehoert
+    // vermutlich zum CMS-Rollout, der dasselbe Skript teilt - das ist nicht
+    // verifiziert. Bewusst NICHT entfernt: wer ihn hier wegraeumt, koennte den
+    // CMS-Rollout brechen. Vor dem Loeschen dort pruefen.
     if ($type === 'cms') {
         $values = [
             'APP_ENV' => 'production',
