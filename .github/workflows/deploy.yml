@@ -163,6 +163,7 @@ jobs:
             --exclude=.git/ --exclude=.github/ --exclude=.env --exclude=.claude/ \
             --exclude=storage/ --exclude=vendor/ --exclude=node_modules/ \
             --exclude=secrets/ --exclude=keys/ --exclude=*.zip \
+            --exclude=CLAUDE.md --exclude=DESIGN.md --exclude=AGENTS.md \
             ./ "$STAGE/"
 
           EXTRA_EXCLUDE=()
