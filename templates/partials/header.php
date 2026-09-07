@@ -155,7 +155,7 @@ if (!function_exists('sidebarIconImageMarkup')) {
 }
 
 if (!function_exists('renderNavTree')) {
-    function renderNavTree(array $tree, string $activeFaviconUrl = '', string $currentPath = '/', string $currentSlug = ''): void {
+    function renderNavTree(array $tree, string $activeFaviconUrl = '', string $currentPath = '/', string $currentSlug = '', bool $isFlyout = false): void {
         if (empty($tree)) {
             return;
         }
@@ -167,8 +167,8 @@ if (!function_exists('renderNavTree')) {
             if ($path !== '/') $path = rtrim($path, '/');
             return $path === '' ? '/' : $path;
         };
-        
-        echo '<ul>';
+
+        echo '<ul' . ($isFlyout ? ' class="site-nav__flyout-list"' : '') . '>';
         foreach ($tree as $node) {
             $nodePath = $normalize((string)($node['url'] ?? '/'));
             $slugNode = trim((string)($node['slug'] ?? ''), '/');
@@ -180,8 +180,10 @@ if (!function_exists('renderNavTree')) {
             $selfActive = ($node['active_self'] ?? false) || $selfByPath;
             $anyActive = ($node['active_any'] ?? false) || $selfByPath;
             $visualActive = $anyActive;
+            $hasChildren = !empty($node['children']);
 
-            echo '<li>';
+            echo '<li' . ($hasChildren ? ' class="has-children"' : '') . '>';
+            echo '<span class="site-nav__row">';
             echo '<a href="' . e($node['url']) . '"';
             if ($visualActive) {
                 echo ' class="active"';
@@ -198,12 +200,20 @@ if (!function_exists('renderNavTree')) {
                 : sidebarIconSvg((string)$node['title']);
             echo '<span class="site-nav__icon">' . $iconMarkup . '</span>';
             echo '<span class="site-nav__label">' . e($node['title']) . '</span>';
-            echo '<span class="site-nav__chevron" aria-hidden="true">›</span></a>';
-            
-            if (!empty($node['children'])) {
-                renderNavTree($node['children'], $activeFaviconUrl, $currentPath, $currentSlug);
+            echo '</a>';
+            if ($hasChildren) {
+                echo '<button type="button" class="site-nav__toggle" aria-expanded="false" aria-label="Untermenü '
+                    . e((string)$node['title']) . ' öffnen">'
+                    . '<span class="site-nav__chevron" aria-hidden="true">›</span></button>';
             }
-            
+            echo '</span>';
+
+            if ($hasChildren) {
+                echo '<div class="site-nav__flyout">';
+                renderNavTree($node['children'], $activeFaviconUrl, $currentPath, $currentSlug, true);
+                echo '</div>';
+            }
+
             echo '</li>';
         }
         echo '</ul>';
@@ -350,6 +360,104 @@ $isContactPage = $currentPath === '/kontakt' || trim(strtolower((string)($slug ?
             toggle.setAttribute('aria-expanded', 'false');
             toggle.focus();
         }
+    });
+
+    // Unterseiten klappen als eigenes Panel rechts neben ihrem Eintrag auf.
+    // Das Panel ist position:fixed (die Sidebar scrollt selbst und wuerde ein
+    // absolut positioniertes Panel an ihrem Rand abschneiden), daher berechnet
+    // JS beim Oeffnen die Position anhand des Ausloeser-Eintrags.
+    const flyoutItems = Array.from(sidebar.querySelectorAll('.site-nav li.has-children'));
+    let closeTimer = null;
+
+    const closeFlyout = (li) => {
+        li.classList.remove('is-open');
+        const btn = li.querySelector(':scope > .site-nav__row .site-nav__toggle');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+    };
+
+    const closeSiblingFlyouts = (li) => {
+        const parentList = li.parentElement;
+        if (!parentList) return;
+        Array.from(parentList.children).forEach((sibling) => {
+            if (sibling !== li && sibling.classList.contains('is-open')) {
+                closeFlyout(sibling);
+            }
+        });
+    };
+
+    const positionFlyout = (li) => {
+        const row = li.querySelector(':scope > .site-nav__row');
+        const flyout = li.querySelector(':scope > .site-nav__flyout');
+        if (!row || !flyout) return;
+        const rect = row.getBoundingClientRect();
+        const gap = 6;
+        flyout.style.top = Math.max(8, rect.top) + 'px';
+        flyout.style.left = (rect.right + gap) + 'px';
+        const flyoutRect = flyout.getBoundingClientRect();
+        if (flyoutRect.right > window.innerWidth - 8) {
+            flyout.style.left = Math.max(8, rect.left - flyoutRect.width - gap) + 'px';
+        }
+        if (flyoutRect.bottom > window.innerHeight - 8) {
+            flyout.style.top = Math.max(8, window.innerHeight - flyoutRect.height - 8) + 'px';
+        }
+    };
+
+    const openFlyout = (li) => {
+        clearTimeout(closeTimer);
+        closeSiblingFlyouts(li);
+        li.classList.add('is-open');
+        const btn = li.querySelector(':scope > .site-nav__row .site-nav__toggle');
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+        positionFlyout(li);
+    };
+
+    const scheduleClose = (li) => {
+        clearTimeout(closeTimer);
+        closeTimer = setTimeout(() => closeFlyout(li), 200);
+    };
+
+    flyoutItems.forEach((li) => {
+        const btn = li.querySelector(':scope > .site-nav__row .site-nav__toggle');
+        const flyout = li.querySelector(':scope > .site-nav__flyout');
+        if (!btn) return;
+
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (li.classList.contains('is-open')) {
+                closeFlyout(li);
+            } else {
+                openFlyout(li);
+            }
+        });
+        li.addEventListener('mouseenter', () => openFlyout(li));
+        li.addEventListener('mouseleave', () => scheduleClose(li));
+        if (flyout) {
+            flyout.addEventListener('mouseenter', () => clearTimeout(closeTimer));
+            flyout.addEventListener('mouseleave', () => scheduleClose(li));
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        flyoutItems.forEach((li) => {
+            if (li.classList.contains('is-open') && !li.contains(event.target)) {
+                closeFlyout(li);
+            }
+        });
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const openItem = flyoutItems.find((li) => li.classList.contains('is-open'));
+        if (!openItem) return;
+        const btn = openItem.querySelector(':scope > .site-nav__row .site-nav__toggle');
+        closeFlyout(openItem);
+        btn?.focus();
+    });
+    sidebar.addEventListener('scroll', () => {
+        flyoutItems.forEach((li) => { if (li.classList.contains('is-open')) closeFlyout(li); });
+    });
+    window.addEventListener('resize', () => {
+        flyoutItems.forEach((li) => { if (li.classList.contains('is-open')) closeFlyout(li); });
     });
 
 })();

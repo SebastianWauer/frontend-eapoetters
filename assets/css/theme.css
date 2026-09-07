@@ -3387,18 +3387,21 @@ body.has-sidebar > .site-footer {
   list-style: none;
 }
 
-.site-sidebar .site-nav ul ul {
-  gap: 0.1rem;
-  margin: 0.2rem 0 0.4rem;
-  padding-inline-start: 1rem;
+.site-sidebar .site-nav li {
+  position: relative;
+  width: 100%;
 }
 
-.site-sidebar .site-nav li {
+.site-sidebar .site-nav__row {
+  display: flex;
+  align-items: stretch;
   width: 100%;
 }
 
 .site-sidebar .site-nav a {
   display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
   width: 100%;
   border: 0;
   gap: 0.75rem;
@@ -3411,6 +3414,73 @@ body.has-sidebar > .site-footer {
   font-weight: 400;
   text-decoration: none;
   transition: color var(--transition), background var(--transition), transform var(--transition);
+}
+
+.site-sidebar .site-nav__toggle {
+  display: inline-flex;
+  flex: 0 0 2.25rem;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  margin-left: 0.15rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: color var(--transition), background var(--transition);
+}
+
+.site-sidebar .site-nav__toggle:hover,
+.site-sidebar li.has-children.is-open > .site-nav__row .site-nav__toggle {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.065);
+}
+
+.site-sidebar .site-nav__toggle:focus-visible {
+  outline: 2px solid var(--sidebar-contact);
+  outline-offset: -2px;
+}
+
+.site-sidebar .site-nav__toggle .site-nav__chevron {
+  transition: transform var(--transition);
+}
+
+.site-sidebar li.has-children.is-open > .site-nav__row .site-nav__toggle .site-nav__chevron {
+  transform: rotate(90deg);
+}
+
+/* Unterseiten klappen als eigenes Panel nach rechts auf, statt unter der
+   Elternseite gestapelt zu werden. position:fixed ist noetig, weil die
+   Sidebar selbst overflow-y:auto hat und ein absolut positioniertes Panel
+   an ihrem rechten Rand abgeschnitten wuerde; die genaue Position setzt JS
+   beim Oeffnen (site-nav__flyout--positioned). */
+.site-sidebar .site-nav__flyout {
+  position: fixed;
+  z-index: 1100;
+  min-width: 13rem;
+  max-width: min(18rem, calc(100vw - 2rem));
+  padding: 0.35rem;
+  border-radius: 0.75rem;
+  background: #202225;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-4px);
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.site-sidebar li.has-children.is-open > .site-nav__flyout {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.site-sidebar .site-nav__flyout-list {
+  gap: 0.08rem;
 }
 
 .site-sidebar .site-nav a::before {
@@ -3494,17 +3564,9 @@ body.has-carousel-nav-focus .site-sidebar .site-nav a.active:not(.is-carousel-fo
 }
 
 .site-sidebar .site-nav__chevron {
-  margin-left: auto;
-  color: rgba(255, 255, 255, 0.26);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 1.25rem;
   line-height: 1;
-  transition: color var(--transition), transform var(--transition);
-}
-
-.site-sidebar .site-nav a:hover .site-nav__chevron,
-.site-sidebar .site-nav a.active .site-nav__chevron {
-  color: var(--sidebar-contact);
-  transform: translateX(0.12rem);
 }
 
 .site-sidebar .site-nav a:hover .site-nav__icon,
