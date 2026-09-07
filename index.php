@@ -1159,6 +1159,19 @@ try {
 }
 
 // -------------------------------------------------------
+// Weiterleitungs-Seite: statt zu rendern, dauerhaft umleiten
+// -------------------------------------------------------
+$redirectUrl = trim((string)($page['redirect_url'] ?? ''));
+if ((string)($page['redirect_type'] ?? 'none') !== 'none' && $redirectUrl !== '') {
+    $qs = (string)($_SERVER['QUERY_STRING'] ?? '');
+    if ($qs !== '' && !str_contains($redirectUrl, '?')) {
+        $redirectUrl .= '?' . $qs;
+    }
+    header('Location: ' . $redirectUrl, true, 301);
+    exit;
+}
+
+// -------------------------------------------------------
 // Render HTML
 // -------------------------------------------------------
 header('Content-Type: text/html; charset=utf-8');
