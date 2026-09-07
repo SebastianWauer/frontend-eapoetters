@@ -75,11 +75,15 @@ class CmsApiClient
      */
     public function getPage(string $slug): array
     {
-        $slug = ltrim($slug, '/');
+        $slug = trim($slug, '/');
         if ($slug === '') {
             throw new \InvalidArgumentException('slug must not be empty');
         }
-        return $this->get('/pages/' . rawurlencode($slug));
+        // Jedes Pfadsegment einzeln kodieren statt den ganzen Slug: rawurlencode()
+        // wuerde sonst auch die "/" von Unterseiten-Pfaden zu "%2F" machen, was
+        // serverseitig nicht zuverlaessig wieder dekodiert wird.
+        $encodedSlug = implode('/', array_map('rawurlencode', explode('/', $slug)));
+        return $this->get('/pages/' . $encodedSlug);
     }
 
     /**
