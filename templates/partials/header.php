@@ -192,13 +192,15 @@ if (!function_exists('renderNavTree')) {
                 echo ' aria-current="page"';
             }
             echo '>';
-            $iconUrl = trim((string)($node['icon_url'] ?? ''));
-            if ($iconUrl !== '' && preg_match('#^(https?://|/)#i', $iconUrl) !== 1) $iconUrl = '';
-            if ($iconUrl === '') $iconUrl = $activeFaviconUrl;
-            $iconMarkup = $iconUrl !== ''
-                ? sidebarIconImageMarkup($iconUrl)
-                : sidebarIconSvg((string)$node['title']);
-            echo '<span class="site-nav__icon">' . $iconMarkup . '</span>';
+            if (!$isFlyout) {
+                $iconUrl = trim((string)($node['icon_url'] ?? ''));
+                if ($iconUrl !== '' && preg_match('#^(https?://|/)#i', $iconUrl) !== 1) $iconUrl = '';
+                if ($iconUrl === '') $iconUrl = $activeFaviconUrl;
+                $iconMarkup = $iconUrl !== ''
+                    ? sidebarIconImageMarkup($iconUrl)
+                    : sidebarIconSvg((string)$node['title']);
+                echo '<span class="site-nav__icon">' . $iconMarkup . '</span>';
+            }
             echo '<span class="site-nav__label">' . e($node['title']) . '</span>';
             echo '</a>';
             if ($hasChildren) {
