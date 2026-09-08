@@ -10,6 +10,7 @@
     $focusScriptVersion = @filemtime(__DIR__ . '/../assets/js/focal-point.js') ?: time();
     $assetBaseUrl = (isset($assetBaseUrl) && is_string($assetBaseUrl)) ? rtrim($assetBaseUrl, '/') : '';
     $faviconUrl = (isset($faviconUrl) && is_string($faviconUrl)) ? trim($faviconUrl) : '';
+    $pageIconUrl = (isset($pageIconUrl) && is_string($pageIconUrl)) ? trim($pageIconUrl) : '';
     $previewMainOnly = !empty($previewMainOnly);
     $contactFormStates = isset($contactFormStates) && is_array($contactFormStates) ? $contactFormStates : [];
     $contactTurnstileSiteKey = (isset($contactTurnstileSiteKey) && is_string($contactTurnstileSiteKey)) ? trim($contactTurnstileSiteKey) : '';
@@ -100,7 +101,7 @@
     ?>
     
     <main>
-        <?php render('templates/page.php', compact('pageTitle', 'pageSubtitle', 'blocks', 'contactFormStates', 'slug', 'contactTurnstileSiteKey', 'publicSettings', 'client', 'navItems', 'faviconUrl', 'assetBaseUrl')); ?>
+        <?php render('templates/page.php', compact('pageTitle', 'pageSubtitle', 'pageIconUrl', 'blocks', 'contactFormStates', 'slug', 'contactTurnstileSiteKey', 'publicSettings', 'client', 'navItems', 'faviconUrl', 'assetBaseUrl')); ?>
     </main>
     
     <?php if (!$previewMainOnly) { render('templates/partials/footer.php', compact('siteName', 'footerNavItems', 'publicSettings')); } ?>

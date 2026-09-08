@@ -1190,6 +1190,7 @@ if ($internalTitle === '') {
 $title = $internalTitle . ' - ' . $siteName;
 $blocks = is_array($page['blocks'] ?? null) ? $page['blocks'] : [];
 $cmsBaseUrl = deriveCmsBaseUrlFromApiBase($baseUrl);
+$pageIconUrl = absolutizeCmsMediaUrl((string)($page['page_icon_url'] ?? ''), $cmsBaseUrl);
 $blocks = absolutizePageCarouselIcons($blocks, $cmsBaseUrl);
 $blocks = absolutizeCatalogUrls($blocks, $cmsBaseUrl);
 $blocks = enrichBlockFocusWithMedia($blocks, $client, $cmsBaseUrl);
@@ -1212,7 +1213,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 }
 
 try {
-    render('templates/layout.php', compact('siteName', 'title', 'pageTitle', 'pageSubtitle', 'blocks', 'navItems', 'slug', 'seo', 'faviconUrl', 'headerLogoUrl', 'contactFormStates', 'contactTurnstileSiteKey', 'publicSettings', 'client'));
+    render('templates/layout.php', compact('siteName', 'title', 'pageTitle', 'pageSubtitle', 'pageIconUrl', 'blocks', 'navItems', 'slug', 'seo', 'faviconUrl', 'headerLogoUrl', 'contactFormStates', 'contactTurnstileSiteKey', 'publicSettings', 'client'));
 } catch (Throwable) {
     render500($siteName);
 }

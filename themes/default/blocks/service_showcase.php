@@ -35,6 +35,7 @@ $headline = trim((string)($payload['headline'] ?? ($pageTitle ?? '')));
 $headlineMuted = trim((string)($payload['headline_muted'] ?? ''));
 $kicker = trim((string)($payload['kicker'] ?? ''));
 $lead = trim((string)($payload['lead'] ?? ''));
+$currentPageIconUrl = $safeUrl((string)($pageIconUrl ?? ''));
 $stockLabel = trim((string)($payload['stock_label'] ?? ''));
 $stockItems = array_values(array_filter(array_map(
     static fn(string $item): string => trim($item),
@@ -102,7 +103,7 @@ $closingSecondaryText = trim((string)($payload['closing_secondary_text'] ?? ''))
 $closingSecondaryUrl = $safeUrl((string)($payload['closing_secondary_url'] ?? ''), true);
 ?>
 <section class="block block-service-showcase"<?= $headline !== '' ? ' aria-labelledby="' . $e($titleId) . '"' : '' ?>>
-  <header class="service-showcase__opening">
+  <header class="service-showcase__opening<?= $currentPageIconUrl !== '' ? ' service-showcase__opening--with-icon' : '' ?>">
     <?php if ($kicker !== ''): ?>
       <div class="service-showcase__kicker">
         <span class="service-showcase__mark" aria-hidden="true"></span>
@@ -116,6 +117,11 @@ $closingSecondaryUrl = $safeUrl((string)($payload['closing_secondary_url'] ?? ''
     <?php endif; ?>
     <?php if ($lead !== ''): ?>
       <p class="service-showcase__opening-lead"><?= nl2br($e($lead)) ?></p>
+    <?php endif; ?>
+    <?php if ($currentPageIconUrl !== ''): ?>
+      <span class="service-showcase__page-icon" aria-hidden="true">
+        <img src="<?= $e($currentPageIconUrl) ?>" alt="" decoding="async">
+      </span>
     <?php endif; ?>
   </header>
 
