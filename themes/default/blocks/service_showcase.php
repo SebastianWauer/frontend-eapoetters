@@ -139,7 +139,9 @@ $closingSecondaryUrl = $safeUrl((string)($payload['closing_secondary_url'] ?? ''
         <article class="service-showcase__item service-showcase__item--<?= $side ?><?= $item['image_url'] === '' ? ' service-showcase__item--no-media' : '' ?>">
           <?php if ($item['image_url'] !== ''): ?>
             <figure class="service-showcase__media">
-              <img src="<?= $e($item['image_url']) ?>" alt="<?= $e($item['image_alt']) ?>" loading="lazy" decoding="async"<?= $item['focus_style'] ?><?= $item['focus_attrs'] ?>>
+              <div class="service-showcase__media-frame">
+                <img src="<?= $e($item['image_url']) ?>" alt="<?= $e($item['image_alt']) ?>" loading="lazy" decoding="async"<?= $item['focus_style'] ?><?= $item['focus_attrs'] ?>>
+              </div>
               <?php if ($item['caption'] !== ''): ?>
                 <figcaption><?= $e($item['caption']) ?></figcaption>
               <?php endif; ?>

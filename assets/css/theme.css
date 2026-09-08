@@ -14,7 +14,7 @@
    Leistungs-Showcase – helle Werkstatt-Editorial-Fassung
    ===================================================== */
 main > .block.block-service-showcase {
-  --service-paper: color-mix(in srgb, var(--color-bg) 98%, var(--sidebar-bg));
+  --service-paper: var(--color-bg);
   --service-ink: var(--sidebar-bg);
   --service-ink-muted: color-mix(in srgb, var(--service-ink) 85%, var(--service-paper));
   --service-ink-dim: color-mix(in srgb, var(--service-ink) 68%, var(--service-paper));
@@ -126,11 +126,44 @@ main > .block.block-service-showcase > * {
   background: color-mix(in srgb, var(--service-ink) 8%, var(--service-paper));
 }
 
+.service-showcase__media::before,
+.service-showcase__media::after {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+}
+
+.service-showcase__media::before {
+  inset: 0 2.5rem;
+  border-inline: 1px solid var(--service-rule-soft);
+}
+
+.service-showcase__media::after {
+  inset: 3.75rem 0;
+  border-block: 1px solid var(--service-rule-soft);
+}
+
+.service-showcase__media-frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 30rem;
+  padding: 6rem 3.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
 .service-showcase__media img {
   display: block;
-  width: 100%;
-  height: clamp(18rem, 75vw, 30rem);
-  object-fit: cover;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 22rem;
+  margin-inline: auto;
+  border: 1px solid var(--service-rule);
+  object-fit: contain;
   object-position: 50% 50%;
 }
 
@@ -427,7 +460,7 @@ main > .block.block-service-showcase > * {
   .service-showcase__stock-label {
     display: flex;
     align-items: center;
-    padding: 1.25rem 2rem 1.25rem 0;
+    padding: 1.25rem 2rem 1.25rem 1rem;
     border-right: 1px solid var(--service-rule);
   }
 
@@ -508,9 +541,9 @@ main > .block.block-service-showcase > * {
     grid-template-columns: 1fr;
   }
 
-  .service-showcase__media img {
-    height: 100%;
+  .service-showcase__media-frame {
     min-height: 35rem;
+    padding: 7rem 4rem;
   }
 
   .service-showcase__body {
