@@ -55,6 +55,7 @@ if (!function_exists('render_page_blocks')) {
                 'news' => 'themes/default/blocks/news.php',
                 'three_columns_layout' => 'themes/default/blocks/three_columns_layout.php',
                 'social_account' => 'themes/default/blocks/social_account.php',
+                'service_showcase' => 'themes/default/blocks/service_showcase.php',
                 default   => 'templates/blocks/unknown.php',
             };
 
@@ -68,7 +69,7 @@ foreach ($blocksList as $candidateBlock) {
     if (!is_array($candidateBlock)) {
         continue;
     }
-    if (in_array((string)($candidateBlock['type'] ?? ''), ['hero', 'dual_hero', 'catalog'], true)) {
+    if (in_array((string)($candidateBlock['type'] ?? ''), ['hero', 'dual_hero', 'catalog', 'service_showcase'], true)) {
         $hasHero = true;
         break;
     }
@@ -91,7 +92,7 @@ foreach ($blocksList as $blockIndex => $block):
         continue;
     }
     $type = (string)($block['type'] ?? '');
-    render_page_blocks([$block], compact('contactFormStates', 'currentSlug', 'contactTurnstileSiteKey', 'publicSettings', 'client', 'navItems', 'faviconUrl', 'assetBaseUrl'));
+    render_page_blocks([$block], compact('pageTitle', 'contactFormStates', 'currentSlug', 'contactTurnstileSiteKey', 'publicSettings', 'client', 'navItems', 'faviconUrl', 'assetBaseUrl'));
 
     if (!$headingRendered && $type === 'dual_hero') {
         // Der linke Bereich des Doppel-Heros enthält bereits die Seiten-H1.
